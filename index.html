@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuponeraff | descubre · ahorra · disfruta</title>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--orange:#f47721;--orange-dark:#df5e0c;--cream:#fff7ef;--ink:#252525;--muted:#777;--line:#f0e5dc;--green:#198754;--red:#e64a38;--blue:#2868a8}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden}button,input{font:inherit}button{cursor:pointer}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.nav{width:100%;max-width:1180px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;flex-direction:column;line-height:1}
+.logo{font-size:24px;font-weight:950;letter-spacing:-1.5px;color:var(--ink)}
+.logo .offword{color:var(--orange)}
+.tagline{font-size:8px;font-weight:850;letter-spacing:1px;color:#8b6b57;margin-top:3px;text-transform:lowercase}
+.tagline b{color:var(--orange-dark)}
+nav{display:flex;gap:15px;align-items:center}nav a{color:#555;text-decoration:none;font-size:12px;font-weight:700}
+.navright{display:flex;align-items:center;gap:8px}
+.muted{color:var(--muted)}
+.btn{border:0;border-radius:11px;padding:10px 14px;background:var(--orange);color:white;font-weight:800;font-size:13px}
+.btn:hover{background:var(--orange-dark)}
+.btn.secondary{background:#fff0e4;color:var(--orange-dark)}
+.btn.dark{background:#292522}
+.btn.green{background:var(--green)}
+.btn.red{background:var(--red)}
+.btn.small{padding:7px 10px;font-size:11px}
+.linkbtn{border:0;background:none;color:var(--orange-dark);font-weight:800;cursor:pointer}
+.container{width:100%;max-width:1180px;margin:auto;padding:20px 16px}
+.hero{background:linear-gradient(115deg,#fff1e4,#fff9f3);padding:35px 16px}
+.hero-inner{max-width:1136px;margin:auto;display:grid;grid-template-columns:1fr;gap:20px;align-items:center}
+.eyebrow{color:var(--orange-dark);font-size:10px;letter-spacing:1.2px;font-weight:900;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,7vw,50px);line-height:1.05;letter-spacing:-2px;margin:8px 0}
+.hero h1 em{color:var(--orange);font-style:normal}
+.hero p{color:#68615c;line-height:1.5;font-size:13px;max-width:100%}
+
+.social-proof{display:flex;align-items:center;gap:12px;margin-top:16px;background:rgba(255,255,255,0.7);padding:8px 12px;border-radius:30px;border:1px solid #f2e2d5;width:fit-content}
+.avatar-group{display:flex;align-items:center}
+.avatar-group img{width:28px;height:28px;border-radius:50%;border:2px solid white;margin-left:-8px;object-fit:cover}
+.avatar-group img:first-child{margin-left:0}
+.proof-text{font-size:11px;color:#555;font-weight:600;line-height:1.2}
+.proof-stars{color:#f59e0b;font-size:11px;margin-right:3px}
+
+.hero-art{min-height:160px;border-radius:20px;background:var(--orange);display:grid;place-items:center;color:white;font-size:60px;position:relative;overflow:hidden}
+.hero-art img{width:100%;height:100%;object-fit:cover;border-radius:20px}
+
+.search{display:flex;gap:8px;width:100%;max-width:520px;margin-top:15px}
+.search input,.field{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none;background:white;font-size:13px}
+.search input:focus,.field:focus{border-color:var(--orange)}
+.sectionhead{display:flex;justify-content:space-between;align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:15px}
+.sectionhead h2{margin:3px 0;font-size:22px}
+.categories{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px}
+.chip{border:1px solid var(--line);background:white;border-radius:30px;padding:8px 12px;font-size:11px;font-weight:800}
+.chip.active,.chip:hover{background:var(--orange);border-color:var(--orange);color:white}
+.cards{display:grid;grid-template-columns:1fr;gap:14px}
+.card,.panel,.metric{border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 4px 14px #1b130b08}
+.card{overflow:hidden}
+.cardvisual{height:160px;background:#fff0e2;display:grid;place-items:center;position:relative;overflow:hidden}
+.cardvisual img{width:100%;height:100%;object-fit:cover}
+.off{position:absolute;top:10px;left:10px;background:var(--orange);color:white;padding:5px 8px;border-radius:6px;font-size:10px;font-weight:900;z-index:2}
+.cardbody{padding:14px}
+.cardtitle{display:flex;justify-content:space-between;gap:6px}
+.cardtitle h3{font-size:15px;margin:0}
+.rating{font-size:11px;color:#a76a15;font-weight:900}
+.cardbody p{font-size:12px;color:var(--muted);line-height:1.4}
+.cardfoot{border-top:1px solid var(--line);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.cardfoot small{color:#888;font-size:10px}
+
+.userpill{background:#edf8f0;color:#237342;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:900}
+.userpill.green{background:#e1f5fe;color:#0277bd}
+
+.promo-banner-section{background:#fff;padding:25px 0}
+.promo-gallery{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+.promo-thumb{height:180px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.promo-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
+.promo-thumb:hover img{transform:scale(1.03)}
+.promo-badge{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.75);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700}
+
+.how{background:var(--cream);padding:28px 16px}
+.steps{max-width:1136px;margin:15px auto 0;display:grid;grid-template-columns:1fr;gap:12px}
+.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.num{width:26px;height:26px;border-radius:8px;background:#fff0e4;color:var(--orange-dark);display:grid;place-items:center;font-weight:900;font-size:12px}
+.step h3{font-size:14px;margin:8px 0 4px}
+.step p{font-size:11px;color:var(--muted);line-height:1.4}
+footer{background:#24211f;color:white;padding:20px 16px}
+.footerin{max-width:1136px;margin:auto;display:flex;justify-content:space-between;gap:12px;flex-direction:column;align-items:flex-start}
+.footerin p{font-size:11px;color:#c9c2bd;margin:0}
+.hidden{display:none!important}
+.view{min-height:60vh}
+.panel{padding:16px}
+.panel h2{margin:0 0 4px;font-size:18px}
+.sub{font-size:12px;color:var(--muted);margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr;gap:10px}
+.metric{padding:12px}
+.metric strong{font-size:24px;display:block;margin-top:4px}
+.metric span{font-size:11px;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.notice{padding:10px 12px;border-radius:10px;font-size:11px;line-height:1.4;background:#fff6e9;border:1px solid #f4dfc8;color:#78512d}
+.notice.blue{background:#eef6ff;border-color:#d7e8fb;color:#315b83}
+.notice.green{background:#edf8f0;border-color:#d5ecda;color:#24613b}
+.notice.red{background:#fff0ef;border-color:#f1d2cf;color:var(--red)}
+.formrow{display:grid;gap:5px;margin:10px 0}
+.formrow label{font-size:11px;font-weight:800}
+.authbox{width:100%;max-width:420px;margin:20px auto;padding:0 12px}
+.authbox .panel{padding:20px}
+.authhead{text-align:center;margin-bottom:15px}
+.authhead h2{margin:10px 0 3px;font-size:20px}
+.scannerbox{border:2px dashed #f0c6a5;border-radius:14px;background:#fffaf6;padding:14px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.scannericon{font-size:45px}.scanner-actions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.result{border-radius:11px;padding:12px;text-align:left;border:1px solid var(--line);background:white}
+.result h3{margin:0 0 5px;font-size:13px}.result p{margin:3px 0;font-size:11px;color:#666}
+.qrholder{width:180px;height:180px;margin:10px auto;display:grid;place-items:center;background:#fff;border:6px solid white;box-shadow:0 0 0 1px var(--line);border-radius:8px}
+.qrholder img,.qrholder canvas{max-width:160px;max-height:160px}
+.couponbox{text-align:center}
+.shortcode{font-size:22px;letter-spacing:3px;font-weight:950;color:var(--orange-dark);background:#fff1e5;border:1px dashed #f2b47f;border-radius:10px;padding:10px 14px;display:inline-block;margin:6px auto}
+.codehint{font-size:10px;color:#806c5c;line-height:1.4}
+.logline{font-size:11px;padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.right{text-align:right}
+.modalback{position:fixed;inset:0;background:#17120fc9;z-index:20;display:none;align-items:center;justify-content:center;padding:14px}
+.modalback.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative}
+.modal.modal-wide{max-width:580px}
+.modal.modal-centered{text-align:center}
+.x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:24px;color:#777;cursor:pointer;line-height:1}
+.toast{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);background:#24211f;color:white;padding:10px 14px;border-radius:10px;z-index:50;font-size:11px;box-shadow:0 6px 20px #0003;display:none}
+.toast.show{display:block}
+.brand-home{border:0;background:transparent;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;line-height:1}
+.brand-home:hover .logo{opacity:.82}
+.auth-switch{text-align:center;font-size:12px;margin:14px 0 6px;color:#665d56}
+.divider-title{font-size:11px;font-weight:900;color:#8b6b57;margin:10px 0}
+.consent-row{display:flex;align-items:flex-start;gap:8px;font-size:10px;line-height:1.4;color:#5f5751;margin-top:12px}
+.consent-row input{margin-top:2px;accent-color:var(--orange)}
+.inline-link{font-size:inherit;padding:0;text-decoration:underline}
+.privacy-copy{font-size:11px;line-height:1.6;color:#514a45}
+.privacy-copy p{margin:8px 0}
+.floating-promo{position:fixed;right:0;top:40%;z-index:15;max-width:210px;padding:10px 20px 10px 12px;border-radius:12px 0 0 12px;background:#292522;color:#fff;box-shadow:0 4px 18px #0002;font-size:10px;line-height:1.4;font-weight:650}
+.floating-promo b{color:#ffad72}
+.promo-dot{color:#6bd28b;margin-right:4px}
+.promo-close{position:absolute;right:4px;top:2px;background:transparent;border:0;color:#ddd;font-size:16px}
+.floating-promo.hidden{display:none!important}
+
+#mapContainer{width:100%;height:320px;border-radius:14px;border:1px solid var(--line);margin-top:12px;z-index:1}
+.map-popup{font-size:11px;text-align:center}.map-popup b{color:var(--orange-dark);font-size:12px;display:block}
+.field-error{font-size:10px;color:var(--red);margin-top:3px;font-weight:700;display:none}
+
+.plan-card{border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all .2s ease;background:#fff}
+.plan-card:hover,.plan-card.selected{border-color:var(--orange);background:#fff9f4}
+.plan-card h4{margin:0 0 4px;font-size:14px}
+.plan-card .price{font-size:18px;font-weight:950;color:var(--orange-dark);margin:4px 0}
+.plan-card p{font-size:10px;color:var(--muted);margin:0}
+
+.password-wrapper{position:relative;display:flex;align-items:center}
+.password-wrapper input{padding-right:38px}
+.toggle-password{position:absolute;right:10px;background:none;border:0;cursor:pointer;font-size:15px;color:var(--muted);padding:4px}
+.toggle-password:hover{color:var(--ink)}
+
+/* ===== Términos y condiciones ===== */
+.terms-mini{background:#fffaf6;border:1px solid #f4dfc8;border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:10.5px;line-height:1.45;color:#6b5a4c;text-align:left}
+.terms-mini b.tt,.terms-box b.tt{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#8b6b57;margin-bottom:4px}
+.terms-mini ul,.terms-box ul{margin:0;padding-left:16px}
+.terms-mini li,.terms-box li{margin:2px 0}
+.terms-valid{margin-top:6px;font-weight:800;color:var(--orange-dark)}
+.terms-box{text-align:left;background:#fffaf6;border:1px solid #f4dfc8;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:11px;line-height:1.45;color:#6b5a4c}
+.sec-title{display:flex;align-items:baseline;gap:8px;margin:22px 0 4px}
+.sec-title h3{margin:0;font-size:17px}
+.sec-title .count{font-size:11px;color:var(--muted);font-weight:700}
+/* ===== Estado de campaña ===== */
+.userpill.ok{background:#e1f5e8;color:#157347}
+.userpill.off{background:#ffeaea;color:#c0392b}
+/* ===== Gráficos ===== */
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.chartbox{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px;background:#fff}
+.chartbox h3{margin:0 0 2px;font-size:14px}
+.hbar-row{display:grid;grid-template-columns:minmax(90px,36%) 1fr 34px;gap:8px;align-items:center;margin:8px 0;font-size:11px}
+.hbar-label{font-weight:700;color:#4a3f37;line-height:1.25;word-break:break-word}
+.hbar-track{background:#f6eee7;border-radius:6px;height:16px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:6px}
+.hbar-val{font-weight:900;text-align:right}
+.hbar-pair{display:grid;gap:3px}
+.hbar-val.two{line-height:19px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:10.5px;color:#5f5751}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chart-empty{padding:22px 10px;text-align:center;color:var(--muted);font-size:12px;background:#fffaf6;border:1px dashed #f0c6a5;border-radius:10px}
+.chartsvg{width:100%;height:auto;display:block}
+
+@media(min-width:769px){
+  .nav{padding:14px 22px}
+  .hero{padding:48px 22px}
+  .hero-inner{grid-template-columns:1.2fr .8fr;gap:30px}
+  .hero-art{min-height:220px;border-radius:26px}
+  .cards{grid-template-columns:repeat(3,1fr);gap:17px}
+  .promo-gallery{grid-template-columns:repeat(3,1fr);gap:16px}
+  .steps{grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid2{grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{grid-template-columns:repeat(3,1fr);gap:13px}
+  .grid4{grid-template-columns:repeat(4,1fr);gap:13px}
+  .sectionhead{flex-direction:row;align-items:flex-end}
+  .footerin{flex-direction:row;align-items:center}
+  #mapContainer{height:380px}
+}
+</style></head>
+<body>
+<header><div class="nav"><button class="brand brand-home" onclick="goHome()" aria-label="Ir a Inicio"><span class="logo"><span>Cuponera</span><span class="offword">ff</span><span class="offword">.</span></span><span class="tagline">descubre <b>·</b> ahorra <b>·</b> disfruta</span></button><nav id="mainNav"><a href="#" onclick="goHome();return false">Explorar</a><a href="#mapa" onclick="goHome();setTimeout(()=>document.getElementById('mapa').scrollIntoView(),50);return false">Mapa de Comercios</a><a href="#como" onclick="goHome();setTimeout(()=>document.getElementById('como').scrollIntoView(),50);return false">Cómo funciona</a></nav><div class="navright" id="navRightContainer"><button class="btn secondary small" onclick="openClientAccount()">Mi cuenta</button><button class="btn small" onclick="showView('merchantLogin')">Acceso comercios</button></div></div></header>
+<main>
+<section id="homeView" class="view">
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow">Beneficios para disfrutar más</div>
+      <h1>Descubre.<br><em>Ahorra.</em><br>Disfruta.</h1>
+      <p>Encuentra restaurantes en Quito, aprovecha promociones especiales y presenta tu cupón digital antes de realizar tu pedido.</p>
+      
+      <div class="social-proof">
+        <div class="avatar-group">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Usuario 1">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Usuario 2">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" alt="Usuario 3">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" alt="Usuario 4">
+        </div>
+        <div class="proof-text">
+          <span class="proof-stars">★★★★★</span> <b>4.6</b><br>
+          Más de <b>1.000 personas</b> ahorran y disfrutan cada semana.
+        </div>
+      </div>
+
+      <div class="search"><input id="searchInput" placeholder="Busca hamburguesas, pizza, café..."><button class="btn" onclick="filterCards()">Buscar</button></div>
+    </div>
+    <div class="hero-art">
+      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80" alt="Comida deliciosa">
+    </div>
+  </div>
+</div>
+
+<div class="container" id="offers">
+  <div class="sectionhead">
+    <div>
+      <div class="eyebrow">OFERTAS CERCA DE TI</div>
+      <h2>Tu próximo lugar favorito</h2>
+      <p class="sub">Promociones para disfrutar en el establecimiento.</p>
+    </div>
+  </div>
+  <div class="categories">
+    <button class="chip active" data-cat="all" onclick="setCat(this)">Todos</button>
+    <button class="chip" data-cat="burger" onclick="setCat(this)">🍔 Hamburguesas</button>
+    <button class="chip" data-cat="pizza" onclick="setCat(this)">🍕 Pizza</button>
+    <button class="chip" data-cat="cafe" onclick="setCat(this)">☕ Cafeterías</button>
+    <button class="chip" data-cat="dessert" onclick="setCat(this)">🍰 Postres</button>
+  </div>
+  <div class="cards" id="cards"></div>
+  <p id="empty" class="muted hidden">No encontramos promociones con esa búsqueda.</p>
+</div>
+
+<!-- MAPA INTERACTIVO -->
+<div class="container" id="mapa" style="padding-top:10px;">
+  <div class="sectionhead">
+    <div>
+      <div class="eyebrow">MAPA INTERACTIVO</div>
+      <h2>Comercios aliados en Quito</h2>
+      <p class="sub">Explora los locales cercanos a ti.</p>
+    </div>
+  </div>
+  <div id="mapContainer"></div>
+</div>
+
+<!-- MÁS PROMOCIONES -->
+<div class="container promo-banner-section">
+  <div class="sectionhead" style="margin-bottom:8px">
+    <div>
+      <div class="eyebrow">TENDENCIAS EN ECUADOR</div>
+      <h2>Más promociones</h2>
+    </div>
+  </div>
+  <div class="promo-gallery">
+    <div class="promo-thumb">
+      <img src="https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=600&auto=format&fit=crop&q=80" alt="Promoción Hamburguesa">
+      <div class="promo-badge">🍔 Mega Combo Familiar</div>
+    </div>
+    <div class="promo-thumb">
+      <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80" alt="Promoción Pizza">
+      <div class="promo-badge">🍕 2x1 en Medianas</div>
+    </div>
+    <div class="promo-thumb">
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80" alt="Promoción Parrilla">
+      <div class="promo-badge">🥩 Cortes y Asados</div>
+    </div>
+  </div>
+</div>
+
+<div class="how" id="como">
+  <div class="container" style="padding-top:0;padding-bottom:0">
+    <div class="eyebrow">Así de sencillo</div>
+    <h2>¿Cómo funciona?</h2>
+    <p class="sub">Tu descuento está a solo tres pasos.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Explora</h3><p>Descubre restaurantes, sucursales y descuentos, y revisa las condiciones de cada promo.</p></div>
+    <div class="step"><div class="num">2</div><h3>Obtén tu cupón</h3><p>Pulsa «Obtener cupón», inicia sesión o regístrate, y Cuponeraff guardará tu cupón en tu cuenta.</p></div>
+    <div class="step"><div class="num">3</div><h3>Canjea y disfruta</h3><p>Abre «Mis cupones», presiona «Ver cupón», presenta el QR en el restaurante y disfruta tu descuento.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- LOGIN DE CLIENTE -->
+<section id="clientLoginView" class="view hidden"><div class="container"><div class="authbox"><div class="panel"><div class="authhead"><div class="brand"><div class="logo"><span>Cuponera</span><span class="offword">ff</span><span class="offword">.</span></div></div><h2>Accede a tu cuenta</h2><p class="sub"><b>Inicia sesión o crea tu cuenta para obtener tu cupón.</b></p></div>
+<form id="clientLoginForm" onsubmit="clientLogin(event)">
+  <div class="formrow"><label for="clientUserPage">Correo electrónico</label><input class="field" id="clientUserPage" type="email" required value="cliente@cuponeraff.com" autocomplete="username"></div>
+  <div class="formrow">
+    <label for="clientPassPage">Contraseña</label>
+    <div class="password-wrapper">
+      <input class="field" id="clientPassPage" type="password" required value="cliente" autocomplete="current-password">
+      <button type="button" class="toggle-password" onclick="togglePasswordVisibility('clientPassPage', this)">👁️</button>
+    </div>
+  </div>
+  <div id="clientLoginErr" class="field-error" style="display:none;margin-bottom:8px">Usuario o contraseña incorrectos.</div>
+  <button class="btn" style="width:100%">Iniciar sesión</button>
+</form>
+<div class="auth-switch">¿Todavía no tienes cuenta? <button class="linkbtn" onclick="openClientRegisterModal()">Regístrate</button></div>
+</div></div></div></section>
+
+<section id="clientView" class="view hidden"><div class="container"><div class="sectionhead"><div><div class="eyebrow">Mi Cuenta</div><h2>Mis cupones</h2><p class="sub" id="clientWelcome"></p></div></div><div class="notice blue" id="clientPlanInfoBox"></div><div class="sec-title"><h3>Cupones disponibles</h3><span class="count" id="availCount"></span></div>
+
+<div id="myCoupons" class="cards"></div>
+<div class="sec-title" style="margin-top:30px"><h3>Historial de cupones</h3><span class="count" id="historyCount"></span></div>
+<p class="sub" style="margin-bottom:12px">Cupones canjeados, vencidos o que ya no están disponibles.</p>
+<div id="myCouponsHistory" class="cards"></div></div></section>
+
+<section id="merchantLoginView" class="view hidden"><div class="container"><div class="authbox"><div class="panel"><div class="authhead"><div class="brand"><div class="logo"><span>Cuponera</span><span class="offword">ff</span><span class="offword">.</span></div><div class="tagline"></div></div><h2>Acceso para comercios</h2></div>
+<form onsubmit="merchantLogin(event)">
+  <div class="formrow"><label for="merchantUser">Usuario</label><input class="field" id="merchantUser" autocomplete="username" required placeholder="Usuario del comercio"></div>
+  <div class="formrow">
+    <label for="merchantPass">Contraseña</label>
+    <div class="password-wrapper">
+      <input class="field" id="merchantPass" type="password" autocomplete="current-password" required placeholder="Contraseña">
+      <button type="button" class="toggle-password" onclick="togglePasswordVisibility('merchantPass', this)">👁️</button>
+    </div>
+  </div>
+  <div id="merchantLoginErr" class="field-error" style="display:none;margin-bottom:8px">Usuario o contraseña incorrectos.</div>
+  <button class="btn" style="width:100%">Iniciar sesión</button>
+</form>
+<div class="auth-switch">¿Tienes un comercio? <button class="linkbtn" onclick="openMerchantRequest()">Quiero ser comercio socio</button></div>
+<p class="auth-switch" style="margin-top:10px;color:var(--muted);text-align:justify">¿Aún no eres parte de Cuponeraff? Cuéntanos sobre tu negocio y te contactaremos para que formes parte de nuestra comunidad.</p>
+</div></div></div></section>
+
+<!-- PORTAL COMERCIO -->
+<section id="merchantView" class="view hidden">
+  <div class="container">
+    <div class="sectionhead">
+      <div>
+        <div class="eyebrow">Portal del comercio</div>
+        <h2 id="merchantTitle">Burger House</h2>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="chip active" onclick="switchMerchantTab('validate', this)">Validar cupones</button>
+      <button class="chip" onclick="switchMerchantTab('exec', this)">Resumen ejecutivo</button>
+      <button class="chip" onclick="switchMerchantTab('promos', this)">Promociones Activas</button>
+    </div>
+
+    <div id="merchantTabValidate">
+      <div class="grid2" style="align-items:start">
+        <div class="panel">
+          <h2>Validar cupón</h2>
+          <p class="sub">Escanea el QR o escribe el código de 5 caracteres.</p>
+          <div class="scannerbox">
+            <div class="scannericon">▦</div>
+            <b>Escáner de cupones</b>
+            <p class="sub" style="margin:0">Permite el acceso a la cámara o introduce el código manualmente.</p>
+            <div id="reader" style="width:100%;max-width:420px;margin:auto"></div>
+            <div class="scanner-actions">
+              <button class="btn" onclick="startScanner()">📷 Activar cámara</button>
+              <button class="btn secondary" onclick="stopScanner()">Detener cámara</button>
+            </div>
+            <div style="max-width:430px;margin:0 auto;width:100%;text-align:left">
+              <label for="manualToken" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">Código corto del cupón</label>
+              <div style="display:flex;gap:7px">
+                <input class="field" id="manualToken" placeholder="Ejemplo: L3413" maxlength="5" autocapitalize="characters">
+                <button class="btn secondary" onclick="manualValidate()">Validar</button>
+              </div>
+              <p class="codehint">Si el cliente no puede mostrar el QR, escribe únicamente la letra y los cuatro números.</p>
+            </div>
+            <div id="scanResult"></div>
+          </div>
+          <div class="notice" style="margin-top:12px">Importante: primero se registra la lectura. Si el cupón es válido para este comercio, el empleado debe pulsar <b>Confirmar canje</b>.</div>
+        </div>
+        <div class="panel">
+          <h2>Actividad reciente</h2>
+          <p class="sub">Lecturas y canjes con fecha y hora oficial de Ecuador.</p>
+          <div id="merchantActivity"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="merchantTabExec" class="hidden">
+      <div class="grid4" id="merchantMetrics"></div>
+      <div class="panel" style="margin-top:17px">
+        <h2>Canjes por campaña</h2>
+        <p class="sub">Cantidad de cupones canjeados en cada una de tus campañas.</p>
+        <div id="merchantChartCampaigns"></div>
+      </div>
+      <div class="panel" style="margin-top:17px">
+        <h2>Canjes por día</h2>
+        <p class="sub">Cupones canjeados cada día. El color indica la campaña, así puedes comparar su efectividad en el tiempo.</p>
+        <div id="merchantChartDaily"></div>
+      </div>
+    </div>
+
+    <div id="merchantTabPromos" class="hidden">
+      <div class="panel" style="margin-bottom:15px">
+        <h2>Campañas activas en Cuponeraff</h2>
+        <p class="sub">Estas son las promociones que tus clientes pueden visualizar actualmente.</p>
+      </div>
+      <div class="cards" id="merchantPromosGrid"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="footerin"><div class="brand"><div class="logo" style="color:white">Cuponera<span style="color:#ff9a52">ff.</span></div><div class="tagline" style="color:#e9c8ad">descubre · ahorra · disfruta</div></div><p>© 2026 Cuponeraff · descubre · ahorra · disfruta</p></div></footer>
+
+<!-- MODAL REGISTRO DE CLIENTE -->
+<div class="modalback" id="clientRegisterModal">
+  <div class="modal modal-wide">
+    <button class="x" onclick="closeClientRegisterModal()" aria-label="Cerrar">×</button>
+    <div class="eyebrow">Únete a Cuponeraff</div>
+    <h2>Crear cuenta de cliente</h2>
+    <p class="sub">Ingresa tus datos para empezar a solicitar cupones de descuento.</p>
+    <form id="clientRegisterFormModal" onsubmit="registerClientStep1(event)">
+      <div class="grid2">
+        <div class="formrow"><label for="regFirstName">Nombre</label><input class="field" id="regFirstName" required maxlength="60" autocomplete="given-name"></div>
+        <div class="formrow"><label for="regLastName">Apellido</label><input class="field" id="regLastName" required maxlength="60" autocomplete="family-name"></div>
+      </div>
+      <div class="formrow">
+        <label for="regBirth">Fecha de nacimiento</label>
+        <input class="field" id="regBirth" type="date" required>
+      </div>
+      <div class="formrow">
+        <label for="regEmail">Correo electrónico</label>
+        <input class="field" id="regEmail" type="email" required maxlength="120" autocomplete="email" oninput="validateEmailLive(this, 'regEmailErr')">
+        <div id="regEmailErr" class="field-error">Ingresa un correo electrónico válido.</div>
+      </div>
+      <div class="formrow">
+        <label for="regPhone">Celular <span class="muted">(10 dígitos)</span></label>
+        <input class="field" id="regPhone" type="tel" maxlength="10" placeholder="Ej. 0991234567" autocomplete="tel" oninput="validatePhoneInput(this, 'regPhoneErr')">
+        <div id="regPhoneErr" class="field-error">El celular debe tener 10 dígitos.</div>
+      </div>
+      <div class="formrow">
+        <label for="regPassword">Contraseña</label>
+        <div class="password-wrapper">
+          <input class="field" id="regPassword" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁️</button>
+        </div>
+      </div>
+      <div class="formrow">
+        <label for="regPassword2">Confirmar contraseña</label>
+        <div class="password-wrapper">
+          <input class="field" id="regPassword2" type="password" required minlength="8" autocomplete="new-password">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword2', this)">👁️</button>
+        </div>
+      </div>
+      <label class="consent-row"><input id="privacyConsent" type="checkbox" required><span>He leído y acepto la <button type="button" class="linkbtn inline-link" onclick="openPrivacy()">Política de Protección de Datos Personales</button>.</span></label>
+      <button class="btn" style="width:100%;margin-top:15px">Continuar al siguiente paso →</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL SOLICITUD COMERCIO SOCIO -->
+<div class="modalback" id="merchantRequestModal"><div class="modal modal-wide"><button class="x" onclick="closeMerchantRequest()" aria-label="Cerrar">×</button><div class="eyebrow">Crezcamos juntos</div><h2>Quiero ser comercio socio</h2><p class="sub">Cuéntanos sobre tu establecimiento. Revisaremos la información y nos pondremos en contacto contigo.</p><form id="merchantRequestForm" onsubmit="submitMerchantRequest(event)"><div class="formrow"><label for="bizName">Nombre del comercio</label><input class="field" id="bizName" required maxlength="120"></div><div class="grid2"><div class="formrow"><label for="bizEmail">Correo electrónico</label><input class="field" id="bizEmail" type="email" required maxlength="120" oninput="validateEmailLive(this, 'bizEmailErr')"><div id="bizEmailErr" class="field-error">Ingresa un correo electrónico válido.</div></div><div class="formrow"><label for="bizPhone">Celular <span class="muted">(10 dígitos)</span></label><input class="field" id="bizPhone" type="tel" required maxlength="10" oninput="validatePhoneInput(this, 'bizPhoneErr')"><div id="bizPhoneErr" class="field-error">El celular debe tener exactamente 10 dígitos.</div></div></div><div class="formrow"><label for="bizAddress">Dirección del establecimiento</label><input class="field" id="bizAddress" required maxlength="220" placeholder="Calle, sector y ciudad"></div><div class="divider-title">Redes sociales <span class="muted">(opcionales)</span></div><div class="formrow"><label for="bizInstagram">Instagram</label><input class="field" id="bizInstagram" placeholder="Ej. @tucomercio o enlace"></div><div class="formrow"><label for="bizTiktok">TikTok</label><input class="field" id="bizTiktok" placeholder="Ej. @tucomercio o enlace"></div><div class="formrow"><label for="bizFacebook">Facebook</label><input class="field" id="bizFacebook" placeholder="Ej. tucomercio o enlace"></div><label class="consent-row"><input id="merchantPrivacyConsent" type="checkbox" required><span>He leído y acepto la <button type="button" class="linkbtn inline-link" onclick="openPrivacy()">Política de Protección de Datos Personales</button>.</span></label><button class="btn" style="width:100%;margin-top:14px">Enviar solicitud</button></form></div></div>
+
+<div class="modalback" id="privacyModal"><div class="modal modal-wide"><button class="x" onclick="closePrivacy()" aria-label="Cerrar">×</button><div class="eyebrow">Cuponeraff</div><h2>Política de Protección de Datos Personales</h2><div class="privacy-copy"><p><b>1. Responsable.</b> Cuponeraff tratará los datos personales proporcionados.</p><p><b>2. Datos tratados.</b> Nombres, apellidos, fecha de nacimiento, correo electrónico y celular.</p><p><b>3. Finalidades.</b> Crear y administrar cuentas; emitir y gestionar cupones.</p><p><b>4. Derechos.</b> Puedes solicitar acceso, rectificación y eliminación de tus datos.</p></div></div></div>
+
+<!-- MODAL ELEGIR PLAN -->
+<div class="modalback" id="paymentModal"><div class="modal modal-wide"><button class="x" onclick="closePaymentModal()" aria-label="Cerrar">×</button><div class="eyebrow">Tu información se ha registrado</div><h2>Paso final: Elige tu plan</h2><p class="sub">A continuación procedemos con la activación de tu cuenta.</p>
+<div class="grid3" style="margin-bottom:15px">
+  <div class="plan-card selected" id="cardPlanFree" onclick="selectPlan('free')">
+    <h4>Plan Free</h4>
+    <div class="price">$0</div>
+    <p>10 cupones disponibles</p>
+  </div>
+  <div class="plan-card" id="cardPlanMonthly" onclick="selectPlan('monthly')">
+    <h4>Plan Mensual</h4>
+    <div class="price">$2.99</div>
+    <p>Cupones ilimitados</p>
+  </div>
+  <div class="plan-card" id="cardPlanAnnual" onclick="selectPlan('annual')">
+    <h4>Plan Anual</h4>
+    <div class="price">$19.99</div>
+    <p>Duración de 1 año</p>
+  </div>
+</div>
+
+<div id="paymentDetailsBox" class="panel hidden" style="background:#fffaf6;border-color:#f4dfc8;text-align:center">
+  <div class="eyebrow">PAGOS POR TRANSFERENCIA</div>
+  <h3 style="margin:5px 0">Escanea el QR para realizar tu pago</h3>
+  <p class="sub" style="margin-bottom:10px">Banco Pichincha · Cta. Corriente No. 2100849201 · Cuponeraff S.A.</p>
+  <div style="background:#fff;padding:12px;display:inline-block;border-radius:12px;border:1px solid var(--line);margin-bottom:12px">
+    <svg width="140" height="140" viewBox="0 0 100 100" style="display:block;margin:auto">
+      <rect width="100" height="100" fill="#fff"/>
+      <path d="M10 10h30v30h-30zM60 10h30v30h-30zM10 60h30v30h-30z" fill="#252525"/>
+      <path d="M15 15h20v20h-20zM65 15h20v20h-20zM15 65h20v20h-20z" fill="#fff"/>
+      <path d="M20 20h10v10h-10zM70 20h10v10h-10zM20 70h10v10h-10z" fill="#f47721"/>
+      <path d="M45 10h10v30h-10zM10 45h30v10h-30zM50 50h40v40h-40z" fill="#252525"/>
+    </svg>
+  </div>
+  <div class="formrow" style="text-align:left">
+    <label for="comprobanteDigits">Escribe los 4 últimos dígitos del comprobante de pago de Banco Pichincha</label>
+    <input class="field" id="comprobanteDigits" maxlength="4" placeholder="Ej. 4819">
+  </div>
+</div>
+
+<button class="btn" id="planActionBtn" style="width:100%;margin-top:18px" onclick="confirmRegistrationAndPlan()">Continuar</button>
+</div></div>
+
+<div class="modalback" id="clientSuccessModal"><div class="modal modal-centered"><button class="x" onclick="closeClientSuccessModal()"></button><div class="eyebrow">¡Registro exitoso!</div><h2 style="margin:12px 0">Felicidades, tu cuenta está lista</h2><p class="sub" style="margin-bottom:20px">Ya puedes disfrutar de tus cupones y beneficios.</p><button class="btn" style="width:100%" onclick="closeClientSuccessModal()">Entendido</button></div></div>
+<div class="modalback" id="merchantSuccessModal"><div class="modal modal-centered"><button class="x" onclick="closeMerchantSuccessModal()"></button><div class="eyebrow">Solicitud enviada</div><h2 style="margin:12px 0">¡Gracias por tu interés!</h2><p class="sub" style="margin-bottom:20px">Revisaremos tu solicitud y nos pondremos en contacto contigo.</p><button class="btn" style="width:100%" onclick="closeMerchantSuccessModal()">Entendido</button></div></div>
+
+<div class="floating-promo" id="floatingPromo"><button class="promo-close" onclick="hideFloatingPromo()" aria-label="Ocultar aviso"></button><span class="promo-dot">●</span><span>Registro gratuito hasta el <b>31 de diciembre de 2026</b>.</span></div>
+
+<!-- MODAL VER CUPÓN -->
+<div class="modalback" id="couponModal"><div class="modal modal-centered"><button class="x" onclick="closeModal()"></button><div class="eyebrow">Tu beneficio está listo</div><h2 id="couponShop" style="margin:8px 0 4px"></h2><p id="couponOffer" class="muted" style="margin-bottom:12px"></p><div class="couponbox"><div class="qrholder" id="couponQr"></div></div><div class="shortcode" id="couponShortCodeText" style="margin-top:12px"></div><p class="sub" id="couponExpiryText" style="margin-top:8px"></p><div class="terms-box" id="couponTerms"></div><button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Entendido</button></div></div><div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://xx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_';
+const _supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true }, db: { schema: 'public' } }) : null;
+
+const DEMO={client:{user:'cliente@cuponeraff.com',pass:'cliente'},merchant:{user:'comercio',pass:'comercio',id:'m1',name:'Burger House',branch:'La Carolina'}};
+
+let globalCouponsStorage = [];
+
+let offers = [];
+let offersLoaded = false;
+let offersLoading = false;
+
+function normalizePromotion(row) {
+  let parsedTerms = row.terms ?? [];
+  if (typeof parsedTerms === 'string') {
+    try { parsedTerms = JSON.parse(parsedTerms); }
+    catch (_) { parsedTerms = parsedTerms ? [parsedTerms] : []; }
+  }
+  if (!Array.isArray(parsedTerms)) parsedTerms = [];
+  return {
+    id: row.id, merchantId: row.merchant_id, shop: row.shop || '',
+    branch: row.branch || '', category: row.category || '',
+    discount: row.discount || '', offer: row.offer || '',
+    image: row.image || '', rating: row.rating ?? '',
+    expires: row.expires || '', description: row.description || '',
+    expiresISO: row.expires_iso || '', active: row.active === true,
+    validAt: row.valid_at || '', terms: parsedTerms
+  };
+}
+
+async function loadOffers() {
+  if (!_supabase) {
+    console.error('No hay conexión configurada con Supabase para cargar promociones.');
+    toast('No se pudo conectar con la base de datos de promociones.');
+    return false;
+  }
+  if (offersLoading) return false;
+  offersLoading = true;
+  try {
+    const { data, error } = await _supabase.from('promotions')
+      .select('id, merchant_id, shop, branch, category, discount, offer, image, rating, expires, description, expires_iso, active, valid_at, terms')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    offers = (data || []).map(normalizePromotion);
+    offersLoaded = true;
+    renderOffers();
+    return true;
+  } catch (error) {
+    console.error('Error al cargar promociones desde Supabase:', error);
+    toast('No se pudieron cargar las promociones. Intenta actualizar la página.');
+    return false;
+  } finally {
+    offersLoading = false;
+  }
+}
+
+let activeCat='all',currentUser=null,html5Qr=null,pendingCoupon=null,leafletMap=null,selectedPlan='free',pendingUserData=null;
+
+function uid(){return 'CO-'+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now()).replaceAll('-','').slice(0,24).toUpperCase()}
+function makeShortCode(){const letters='ABCDEFGHJKLMNPQRSTUVWXYZ';let code;do{const bytes=new Uint8Array(5);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<5;i++)bytes[i]=Math.floor(Math.random()*256);code=letters[bytes[0]%letters.length]+String((bytes[1]*256+bytes[2])%10000).padStart(4,'0')}while(false);return code}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'''}[c]))}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),3500)}
+
+function formatEcuadorDate(isoString) {
+  if (!isoString) return '';
+  return new Date(isoString).toLocaleString('es-EC', { timeZone: 'America/Guayaquil', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+}
+
+function translateResult(res) {
+  const map = {
+    'READ_VALID': 'Lectura válida (Pendiente)',
+    'REDEEMED': 'Canje confirmado',
+    'NOT_FOUND': 'Código no encontrado',
+    'WRONG_MERCHANT': 'Cupón de otro comercio',
+    'ALREADY_REDEEMED': 'Cupón ya canjeado',
+    'EXPIRED': 'Cupón vencido'
+  };
+  return map[res] || res;
+}
+
+const DEFAULT_TERMS=['Válido únicamente con consumo en el restaurante.','No aplica para pedidos a domicilio ni para llevar.','No aplica promoción sobre promoción ni es acumulable con otras ofertas.'];
+const CHART_COLORS=['#f47721','#2868a8','#198754','#8e44ad','#e64a38','#d4a017','#17a2b8','#6c757d'];
+function chartColor(i){return CHART_COLORS[i%CHART_COLORS.length]}
+
+function offerOfCoupon(c){return offers.find(o=>o.id===c.promotion_id)||null}
+function termsData(c){
+  const o=offerOfCoupon(c);
+  return {terms:(o&&o.terms&&o.terms.length)?o.terms:DEFAULT_TERMS, validAt:(o&&o.validAt)||('Sucursal '+(c.branch||''))};
+}
+function termsListHTML(terms,validAt){
+  return '<ul>'+terms.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul><div class="terms-valid">Válido en: '+esc(validAt)+'</div>';
+}
+function isCampaignActive(o){
+  if(!o || o.active !== true) return false;
+  if(o.expiresISO) {
+    const expiry = new Date(o.expiresISO + 'T23:59:59-05:00').getTime();
+    if(!Number.isNaN(expiry) && Date.now() > expiry) return false;
+  }
+  return true;
+}
+function couponEffStatus(c){
+  const exp=c.expires_at||c.expiresAt;
+  if(c.status==='ACTIVE'&&exp&&Date.now()>new Date(exp).getTime())return 'EXPIRED';
+  return c.status;
+}
+function ecDayKey(v){
+  const d=new Date(v);
+  if(isNaN(d))return '';
+  return d.toLocaleDateString('en-CA',{timeZone:'America/Guayaquil'});
+}
+function redeemedDate(c,events){
+  const r=c.redeemed_at||c.redeemedAt;
+  if(r)return r;
+  const e=(events||[]).find(x=>x.result==='REDEEMED'&&x.coupon_id===c.id);
+  return e?e.at:(c.created_at||c.createdAt);
+}
+function campaignLabel(c){
+  const o=offerOfCoupon(c);
+  return (o&&o.offer)||c.offer||'Campaña';
+}
+
+function emptyChart(msg){return '<div class="chart-empty">'+esc(msg||'Aún no hay datos para mostrar.')+'</div>'}
+function legendHTML(entries){
+  return '<div class="legend">'+entries.map(e=>'<span><i style="background:'+e.color+'"></i>'+esc(e.name)+'</span>').join('')+'</div>';
+}
+function hBarChart(items){
+  if(!items.length||items.every(i=>!i.value))return emptyChart('Aún no hay canjes confirmados para mostrar.');
+  const max=Math.max(...items.map(i=>i.value),1);
+  return '<div>'+items.map(i=>'<div class="hbar-row"><div class="hbar-label">'+esc(i.label)+'</div><div class="hbar-track"><div class="hbar-fill" style="width:'+(i.value/max*100).toFixed(1)+'%;background:'+i.color+(i.value>0?';min-width:3px':'')+'"></div></div><div class="hbar-val">'+i.value+'</div></div>').join('')+'</div>';
+}
+function pairBarChart(items,nameA,colorA,nameB,colorB){
+  if(!items.length||items.every(i=>!i.a&&!i.b))return emptyChart('Aún no hay cupones emitidos para mostrar.');
+  const max=Math.max(...items.map(i=>Math.max(i.a,i.b)),1);
+  const bar=(v,c)=>'<div class="hbar-track"><div class="hbar-fill" style="width:'+(v/max*100).toFixed(1)+'%;background:'+c+(v>0?';min-width:3px':'')+'"></div></div>';
+  return '<div>'+items.map(i=>'<div class="hbar-row"><div class="hbar-label">'+esc(i.label)+'</div><div class="hbar-pair">'+bar(i.a,colorA)+bar(i.b,colorB)+'</div><div class="hbar-val two">'+i.a+'<br>'+i.b+'</div></div>').join('')+'</div>'
+    +legendHTML([{name:nameA,color:colorA},{name:nameB,color:colorB}]);
+}
+function buildDailySeries(items,names){
+  const MS=864e5, todayKey=ecDayKey(Date.now());
+  const rows=items.map(i=>({dk:ecDayKey(i.at),key:i.key})).filter(i=>i.dk);
+  let n=7;
+  if(rows.length){
+    const first=rows.map(i=>i.dk).sort()[0];
+    const diff=Math.round((Date.parse(todayKey+'T00:00:00Z')-Date.parse(first+'T00:00:00Z'))/MS);
+    n=Math.min(30,Math.max(7,diff+1));
+  }
+  const dayKeys=[];
+  for(let i=n-1;i>=0;i--)dayKeys.push(ecDayKey(Date.now()-i*MS));
+  const series=names.map((name,idx)=>({name,color:chartColor(idx),values:dayKeys.map(dk=>rows.filter(r=>r.dk===dk&&r.key===name).length)}));
+  return {dayKeys,series};
+}
+function stackedDailyChart(dayKeys,series){
+  const n=dayKeys.length;
+  const totals=dayKeys.map((_,i)=>series.reduce((sum,x)=>sum+x.values[i],0));
+  if(!totals.some(t=>t>0))return emptyChart('Aún no hay canjes confirmados para mostrar en el tiempo.');
+  const W=640,H=250,pl=34,pr=8,pt=10,pb=30;
+  const maxT=Math.max(...totals);
+  const step=Math.max(1,Math.ceil(maxT/4));
+  const yMax=Math.ceil(maxT/step)*step;
+  const iw=W-pl-pr, ih=H-pt-pb, bw=iw/n, barW=Math.min(34,bw*0.68);
+  const fmt=dk=>dk.slice(8)+'/'+dk.slice(5,7);
+  let g='';
+  for(let v=0;v<=yMax;v+=step){
+    const y=pt+ih-(v/yMax)*ih;
+    g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="#f0e5dc"/><text x="'+(pl-6)+'" y="'+(y+3)+'" text-anchor="end" font-size="10" fill="#806c5c">'+v+'</text>';
+  }
+  const every=Math.max(1,Math.ceil(n/10));
+  dayKeys.forEach((dk,i)=>{
+    const cx=pl+bw*i+bw/2;
+    let acc=0;
+    series.forEach(sr=>{
+      const v=sr.values[i];
+      if(!v)return;
+      const h=(v/yMax)*ih, y=pt+ih-((acc+v)/yMax)*ih;
+      acc+=v;
+      g+='<rect x="'+(cx-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+sr.color+'" rx="2"><title>'+esc(sr.name)+': '+v+' canje(s) · '+fmt(dk)+'</title></rect>';
+    });
+    if((n-1-i)%every===0)g+='<text x="'+cx.toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" font-size="10" fill="#806c5c">'+fmt(dk)+'</text>';
+  });
+  return '<svg class="chartsvg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cupones canjeados por día">'+g+'</svg>'+legendHTML(series.map(x=>({name:x.name,color:x.color})))+'<p class="codehint" style="margin-bottom:0">Últimos '+n+' días</p>';
+}
+
+function togglePasswordVisibility(inputId, btnEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') { input.type = 'text'; btnEl.textContent = '🙈'; }
+  else { input.type = 'password'; btnEl.textContent = '👁️'; }
+}
+
+function validatePhoneInput(inputEl, errElId) {
+  inputEl.value = inputEl.value.replace(/\D/g, '').slice(0, 10);
+  const errBox = document.getElementById(errElId);
+  if(errBox) errBox.style.display = (inputEl.value.length > 0 && inputEl.value.length !== 10) ? 'block' : 'none';
+}
+
+function isValidEmailFormat(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+function validateEmailLive(inputEl, errElId) {
+  const errBox = document.getElementById(errElId);
+  if(errBox) errBox.style.display = (inputEl.value.trim() && !isValidEmailFormat(inputEl.value.trim())) ? 'block' : 'none';
+}
+
+function goHome() {
+  if (currentUser && currentUser.role === 'merchant') showView('merchant');
+  else showView('home');
+}
+
+function updateNavHeader() {
+  const container = document.getElementById('navRightContainer');
+  const mainNav = document.getElementById('mainNav');
+  if(!container) return;
+  
+  if(!currentUser || currentUser.role === 'client') { if(mainNav) mainNav.style.display = 'flex'; }
+  else { if(mainNav) mainNav.style.display = 'none'; }
+
+  if(!currentUser) {
+    container.innerHTML = `<button class="btn secondary small" onclick="openClientAccount()">Mi cuenta</button><button class="btn small" onclick="showView('merchantLogin')">Acceso comercios</button>`;
+  } else if(currentUser.role === 'client') {
+    container.innerHTML = `<button class="btn secondary small" onclick="showView('client')">👤 Mi cuenta (${esc(currentUser.name.split(' ')[0])})</button><button class="btn small red" onclick="logout()">Cerrar sesión</button>`;
+  } else if(currentUser.role === 'merchant') {
+    container.innerHTML = `<button class="btn secondary small" onclick="showView('merchant')">🏪 ${esc(currentUser.name)}</button><button class="btn small red" onclick="logout()">Cerrar sesión</button>`;
+  }
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+  const el=document.getElementById(name+'View');
+  if(el)el.classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  
+  if(name==='home') setTimeout(initMap, 100);
+  if(name==='merchant') renderMerchant();
+  if(name==='client') renderClient();
+  updateNavHeader();
+}
+
+async function initMap(){
+  const mapElem = document.getElementById('mapContainer');
+  if(!mapElem) return;
+  
+  if(leafletMap) { 
+    leafletMap.invalidateSize(); 
+    return; 
+  }
+
+  leafletMap = L.map('mapContainer').setView([-0.1650, -78.4840], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+    maxZoom: 19, 
+    attribution: '© OpenStreetMap' 
+  }).addTo(leafletMap);
+
+  let shopsToRender = [];
+
+  if(_supabase) {
+    try {
+      const { data, error } = await _supabase.from('merchants').select('*');
+      if(data && data.length > 0) {
+        shopsToRender = data.map(m => ({
+          name: m.name,
+          cat: m.category || 'Aliado socio',
+          lat: m.lat,
+          lng: m.lng,
+          address: m.address || m.branch || 'Quito'
+        }));
+      }
+    } catch(err) {
+      console.error('Error al obtener comercios para el mapa:', err);
+    }
+  }
+
+  shopsToRender.forEach(s => {
+    if(s.lat && s.lng) {
+      L.marker([s.lat, s.lng])
+        .addTo(leafletMap)
+        .bindPopup(`
+          <div class="map-popup">
+            <b>${esc(s.name)}</b><br>
+            <span>${esc(s.cat)}</span><br>
+            <small>${esc(s.address)}</small>
+          </div>
+        `);
+    }
+  });
+}
+
+function setCat(b){document.querySelectorAll('.chip[data-cat]').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeCat=b.dataset.cat;filterCards()}
+function filterCards(){const q=(document.getElementById('searchInput')?.value||'').toLowerCase();let n=0;document.querySelectorAll('.offer-card').forEach(c=>{const ok=(activeCat==='all'||c.dataset.cat===activeCat)&&(!q||c.innerText.toLowerCase().includes(q));c.classList.toggle('hidden',!ok);if(ok)n++});const empty=document.getElementById('empty');if(empty){if(offersLoaded&&offers.filter(isCampaignActive).length===0){empty.textContent='Por el momento no hay promociones disponibles.';empty.classList.remove('hidden')}else if(offers.filter(isCampaignActive).length>0){empty.textContent='No encontramos promociones con esa búsqueda.';empty.classList.toggle('hidden',n>0)}}}
+
+function renderOffers(){
+  const cards = document.getElementById('cards');
+  const empty = document.getElementById('empty');
+  const activeOffers = offers.filter(isCampaignActive);
+  if(!activeOffers.length) {
+    cards.innerHTML = '';
+    empty.textContent = offersLoaded ? 'Por el momento no hay promociones disponibles.' : 'Cargando promociones...';
+    empty.classList.remove('hidden');
+    return;
+  }
+  cards.innerHTML = activeOffers.map(o=>`
+    <article class="card offer-card" data-cat="${esc(o.category)}">
+      <div class="cardvisual"><span class="off">${esc(o.discount)}</span><img src="${esc(o.image)}" alt="${esc(o.shop)}"></div>
+      <div class="cardbody">
+        <div class="cardtitle"><h3>${esc(o.shop)}</h3><span class="rating">${o.rating !== '' ? '★ ' + esc(o.rating) : ''}</span></div>
+        <p>${esc(o.description)}</p>
+        <p>📍 ${esc(o.branch)}, Quito</p>
+        <div class="cardfoot"><small>Válido hasta ${esc(o.expires)}</small><button class="btn small" onclick="claim('${esc(o.id)}')">Obtener cupón</button></div>
+      </div>
+    </article>
+  `).join('');
+  empty.classList.add('hidden');
+  filterCards();
+}
+document.getElementById('searchInput').addEventListener('input',filterCards);
+
+function openClientRegisterModal(){
+  document.getElementById('clientRegisterFormModal').reset();
+  document.querySelectorAll('#clientRegisterModal .field-error').forEach(e => e.style.display = 'none');
+  document.getElementById('clientRegisterModal').classList.add('show');
+}
+function closeClientRegisterModal(){ document.getElementById('clientRegisterModal').classList.remove('show'); }
+
+function openPrivacy(){document.getElementById('privacyModal').classList.add('show')}
+function closePrivacy(){document.getElementById('privacyModal').classList.remove('show')}
+
+async function registerClientStep1(e){
+  e.preventDefault();
+  const first=document.getElementById('regFirstName').value.trim(),
+        last=document.getElementById('regLastName').value.trim(),
+        birth=document.getElementById('regBirth').value,
+        email=document.getElementById('regEmail').value.trim().toLowerCase(),
+        phone=document.getElementById('regPhone').value.trim(),
+        pass=document.getElementById('regPassword').value,
+        pass2=document.getElementById('regPassword2').value;
+
+  if(!isValidEmailFormat(email)){ toast('Ingresa un correo válido.'); return; }
+  if(phone.length !== 10){ toast('El celular debe tener 10 dígitos.'); return; }
+  if(pass!==pass2){ toast('Las contraseñas no coinciden'); return; }
+  if(!document.getElementById('privacyConsent').checked){ toast('Debes aceptar la política de privacidad'); return; }
+  
+  pendingUserData = { email, first, last, birth, phone, password: pass, plan: 'free', status: 'activo', created_at: new Date().toISOString() };
+  closeClientRegisterModal();
+  selectPlan('free');
+  document.getElementById('paymentModal').classList.add('show');
+}
+
+function selectPlan(planType) {
+  selectedPlan = planType;
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  if(planType === 'free') document.getElementById('cardPlanFree').classList.add('selected');
+  if(planType === 'monthly') document.getElementById('cardPlanMonthly').classList.add('selected');
+  if(planType === 'annual') document.getElementById('cardPlanAnnual').classList.add('selected');
+
+  const payBox = document.getElementById('paymentDetailsBox');
+  const actionBtn = document.getElementById('planActionBtn');
+  if(planType === 'free') {
+    payBox.classList.add('hidden');
+    actionBtn.textContent = 'Continuar';
+  } else {
+    payBox.classList.remove('hidden');
+    actionBtn.textContent = 'Validar el pago';
+  }
+}
+
+function closePaymentModal(){ document.getElementById('paymentModal').classList.remove('show'); }
+function closeClientSuccessModal(){ document.getElementById('clientSuccessModal').classList.remove('show'); showView('client'); }
+function closeMerchantSuccessModal(){ document.getElementById('merchantSuccessModal').classList.remove('show'); showView('home'); }
+
+async function confirmRegistrationAndPlan(){
+  if(!pendingUserData) return;
+  pendingUserData.plan = selectedPlan;
+  pendingUserData.status = selectedPlan !== 'free' ? 'pendiente_pago' : 'activo';
+  if(selectedPlan !== 'free') pendingUserData.comprobante_digits = document.getElementById('comprobanteDigits').value.trim();
+
+  if(_supabase) {
+    try {
+      const { error } = await _supabase.from('users').insert([pendingUserData]);
+      if(error) {
+        console.error('Error al guardar en Supabase:', error);
+        toast('Error al registrar usuario en la base de datos: ' + error.message);
+        return;
+      }
+    } catch(err) {
+      console.error('Excepción de red:', err);
+      toast('Excepción al conectar con la base de datos.');
+      return;
+    }
+  }
+
+  closePaymentModal();
+  document.getElementById('clientUserPage').value = pendingUserData.email;
+  document.getElementById('clientPassPage').value = pendingUserData.password;
+  
+  currentUser = { role:'client', user: pendingUserData.email.toLowerCase(), name: pendingUserData.first + ' ' + pendingUserData.last, plan: pendingUserData.plan, status: pendingUserData.status, createdAt: pendingUserData.created_at };
+
+  if(pendingCoupon) {
+    const offerIdToSave = pendingCoupon;
+    pendingCoupon = null;
+    await createCoupon(offerIdToSave);
+  }
+
+  document.getElementById('clientSuccessModal').classList.add('show');
+  pendingUserData = null;
+}
+
+function openMerchantRequest(){
+  document.getElementById('merchantRequestForm').reset();
+  document.querySelectorAll('#merchantRequestModal .field-error').forEach(e => e.style.display = 'none');
+  document.getElementById('merchantRequestModal').classList.add('show');
+}
+function closeMerchantRequest(){document.getElementById('merchantRequestModal').classList.remove('show')}
+
+async function submitMerchantRequest(e){
+  e.preventDefault();
+  const email = document.getElementById('bizEmail').value.trim(), phone = document.getElementById('bizPhone').value.trim();
+  if(!isValidEmailFormat(email)){ toast('Ingresa un correo válido.'); return; }
+  if(phone.length !== 10){ toast('El celular debe tener 10 dígitos.'); return; }
+  if(!document.getElementById('merchantPrivacyConsent').checked){ toast('Debes aceptar la Política de Privacidad.'); return; }
+  
+  const req={ id: uid(), name: document.getElementById('bizName').value.trim(), email, phone, address: document.getElementById('bizAddress').value.trim(), instagram: document.getElementById('bizInstagram').value.trim(), tiktok: document.getElementById('bizTiktok').value.trim(), facebook: document.getElementById('bizFacebook').value.trim(), status:'PENDIENTE', created_at: new Date().toISOString() };
+
+  if(_supabase) { try { await _supabase.from('merchant_requests').insert([req]); } catch(err) {} }
+  closeMerchantRequest();
+  document.getElementById('merchantSuccessModal').classList.add('show');
+}
+
+function hideFloatingPromo(){document.getElementById('floatingPromo').classList.add('hidden');localStorage.setItem('cuponeraf_promo_hidden','1')}
+if(localStorage.getItem('cuponeraf_promo_hidden')==='1')document.getElementById('floatingPromo').classList.add('hidden');
+
+function openClientAccount(){if(currentUser?.role==='client'){showView('client');return}pendingCoupon=null;showView('clientLogin')}
+
+async function clientLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('clientUserPage').value.trim().toLowerCase(), p=document.getElementById('clientPassPage').value;
+  const errBox = document.getElementById('clientLoginErr');
+  
+  let account = null;
+  if(_supabase) {
+    try {
+      const { data } = await _supabase.from('users').select('*').eq('email', u).eq('password', p).limit(1);
+      if(data && data.length > 0) account = data[0];
+    } catch(err) {}
+  }
+  
+  const demoOk = (u === DEMO.client.user.toLowerCase() && p === DEMO.client.pass);
+  if(!account && !demoOk){ if(errBox) errBox.style.display = 'block'; return; }
+  if(errBox) errBox.style.display = 'none';
+
+  currentUser={ 
+    role:'client', 
+    user: account ? account.email.toLowerCase() : DEMO.client.user.toLowerCase(), 
+    name: account ? (account.first+' '+account.last) : 'Cliente', 
+    plan: account ? account.plan : 'free', 
+    status: account ? account.status : 'activo', 
+    createdAt: account ? account.created_at : new Date().toISOString() 
+  };
+  
+  if(pendingCoupon){
+    const offerIdToSave = pendingCoupon;
+    pendingCoupon = null;
+    await createCoupon(offerIdToSave);
+    toast('¡Cupón guardado!');
+  } else { toast('Sesión iniciada'); }
+
+  showView('client');
+}
+
+function closeModal(){ document.getElementById('couponModal').classList.remove('show'); }
+
+function claim(id){
+  pendingCoupon = id;
+  if(currentUser?.role==='client'){
+    createCoupon(id).then(() => { pendingCoupon = null; showView('client'); toast('¡Cupón guardado!'); });
+    return;
+  }
+  showView('clientLogin');
+  toast('Inicia sesión o regístrate para guardar este cupón');
+}
+
+async function createCoupon(id){
+  const o=offers.find(x=>x.id===id);
+  if(!o||currentUser?.role!=='client')return;
+  const createdAt=new Date();
+  const expiresAtDate = new Date();
+  expiresAtDate.setMonth(expiresAtDate.getMonth() + 1);
+  
+  const c={ id: uid(), token: uid(), short_code: makeShortCode(), promotion_id: id, merchant_id: o.merchantId, merchant: o.shop, branch: o.branch, offer: o.offer, discount: o.discount, client: currentUser.user.toLowerCase(), created_at: createdAt.toISOString(), expires_at: expiresAtDate.toISOString(), status:'ACTIVE' };
+
+  if(_supabase) { try { await _supabase.from('coupons').insert([c]); } catch(e) {} }
+  globalCouponsStorage.push(c);
+}
+
+function openCouponModal(cId) {
+  const userCoupons = globalCouponsStorage.filter(x => x.client === currentUser.user.toLowerCase());
+  const c = userCoupons.find(x => x.id === cId);
+  if(!c) return;
+  document.getElementById('couponShop').textContent = c.merchant;
+  document.getElementById('couponOffer').textContent = c.offer;
+  document.getElementById('couponShortCodeText').textContent = c.short_code || c.shortCode;
+  document.getElementById('couponExpiryText').textContent = 'Válido hasta el ' + new Date(c.expires_at || c.expiresAt).toLocaleDateString('es-EC');
+  const td = termsData(c);
+  document.getElementById('couponTerms').innerHTML = '<b class="tt">Términos y condiciones</b>' + termsListHTML(td.terms, td.validAt);
+  
+  const qrBox = document.getElementById('couponQr');
+  qrBox.innerHTML = '';
+  new QRCode(qrBox,{text:'CUPONERAFF|'+c.token,width:160,height:160,colorDark:'#252525',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('couponModal').classList.add('show');
+}
+
+function couponCardHTML(c, available){
+  const st=couponEffStatus(c);
+  const cls=st==='ACTIVE'?'s-active':st==='REDEEMED'?'s-redeemed':'s-expired';
+  const lbl=st==='ACTIVE'?'DISPONIBLE':st==='REDEEMED'?'CANJEADO':'VENCIDO';
+  const td=termsData(c);
+  const terms=available?`<div class="terms-mini"><b class="tt">Términos y condiciones</b>${termsListHTML(td.terms,td.validAt)}</div>`:'';
+  const footer=available
+    ? `<button class="btn small" onclick="openCouponModal('${c.id}')">Ver cupón 🔍</button>`
+    : `<span class="muted" style="font-size:11px">${st==='REDEEMED'?'Usado':'No disponible'}</span>`;
+  return `
+    <div class="panel couponbox" style="text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="status ${cls}">${lbl}</span>
+        <small class="codehint">Sucursal: ${esc(c.branch)}</small>
+      </div>
+      <h3 style="margin:4px 0">${esc(c.merchant)}</h3>
+      <p class="sub" style="margin-bottom:6px">${esc(c.offer)}</p>
+      <small class="muted" style="display:block;margin-bottom:10px">Solicitado: ${formatEcuadorDate(c.created_at||c.createdAt)}</small>
+      ${terms}
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px">
+        <small class="muted">Caduca: ${new Date(c.expires_at||c.expiresAt).toLocaleDateString('es-EC')}</small>
+        ${footer}
+      </div>
+    </div>`;
+}
+
+async function renderClient(){
+  document.getElementById('clientWelcome').textContent='Hola, '+(currentUser?.name||'cliente')+'. Recuerda que el  cupón es de un solo uso. Presiona «Ver cupón» para mostrar el QR en el comercio al pagar.';
+  const planName = currentUser?.plan === 'monthly' ? 'Plan Mensual ($2.99)' : currentUser?.plan === 'annual' ? 'Plan Anual ($19.99)' : 'Plan Free (10 cupones)';
+  const startDate = currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('es-EC') : 'Reciente';
+  const statusMsg = currentUser?.status === 'pendiente_pago' ? ' · <span style="color:var(--orange)">Pago pendiente de aprobación por admin</span>' : '';
+  document.getElementById('clientPlanInfoBox').innerHTML = `<b>Tu Estado:</b> ${planName} · <b>Fecha de inicio:</b> ${startDate}${statusMsg}`;
+
+  if(_supabase && currentUser?.user) {
+    try {
+      const { data } = await _supabase.from('coupons').select('*').eq('client', currentUser.user.toLowerCase());
+      if(data) data.forEach(dbC => { if(!globalCouponsStorage.some(existing => existing.id === dbC.id)) globalCouponsStorage.push(dbC); });
+    } catch(e) {}
+  }
+
+  const myCoupons = globalCouponsStorage.filter(c => c.client === currentUser.user.toLowerCase());
+  const byRecent = (a,b) => new Date(b.created_at||b.createdAt) - new Date(a.created_at||a.createdAt);
+  const available = myCoupons.filter(c => couponEffStatus(c)==='ACTIVE').sort(byRecent);
+  const history = myCoupons.filter(c => couponEffStatus(c)!=='ACTIVE').sort(byRecent);
+
+  document.getElementById('availCount').textContent = available.length ? '(' + available.length + ')' : '';
+  document.getElementById('historyCount').textContent = history.length ? '(' + history.length + ')' : '';
+
+  const noneAtAll = '<div class="panel" style="grid-column:1/-1"><h3>Aún no tienes cupones</h3><p class="sub">Explora las promociones y obtén tu primer beneficio.</p><button class="btn" onclick="showView(\'home\')">Explorar promociones</button></div>';
+  const noneAvail = '<div class="panel" style="grid-column:1/-1"><h3>No tienes cupones disponibles</h3><p class="sub">Explora las promociones y obtén un nuevo beneficio.</p><button class="btn" onclick="showView(\'home\')">Explorar promociones</button></div>';
+  const noneHistory = '<div class="panel" style="grid-column:1/-1"><p class="sub" style="margin:0">Todavía no tienes cupones en tu historial.</p></div>';
+
+  document.getElementById('myCoupons').innerHTML = available.length ? available.map(c=>couponCardHTML(c,true)).join('') : (myCoupons.length ? noneAvail : noneAtAll);
+  document.getElementById('myCouponsHistory').innerHTML = history.length ? history.map(c=>couponCardHTML(c,false)).join('') : noneHistory;
+}
+
+async function merchantLogin(e){
+  e.preventDefault();
+  const errBox = document.getElementById('merchantLoginErr');
+  const u = document.getElementById('merchantUser').value.trim(), p = document.getElementById('merchantPass').value;
+
+  let foundMerchant = null;
+  if(_supabase) {
+    try {
+      const { data } = await _supabase.from('merchants').select('*').eq('username', u).eq('password', p).limit(1);
+      if(data && data.length > 0) foundMerchant = data[0];
+    } catch(e) {}
+  }
+
+  const demoOk = (u === DEMO.merchant.user && p === DEMO.merchant.pass);
+  if(!foundMerchant && !demoOk){ if(errBox) errBox.style.display = 'block'; return; }
+  if(errBox) errBox.style.display = 'none';
+
+  currentUser={ role:'merchant', merchantId: foundMerchant ? foundMerchant.id : DEMO.merchant.id, name: foundMerchant ? foundMerchant.name : DEMO.merchant.name };
+  showView('merchant');
+}
+
+function switchMerchantTab(tab, btnEl) {
+  document.querySelectorAll('#merchantView .tabs .chip').forEach(b => b.classList.remove('active'));
+  if(btnEl) btnEl.classList.add('active');
+  const map = { validate:'Validate', exec:'Exec', promos:'Promos' };
+  Object.values(map).forEach(n => document.getElementById('merchantTab'+n).classList.add('hidden'));
+  document.getElementById('merchantTab'+(map[tab]||'Validate')).classList.remove('hidden');
+  if(tab === 'promos') renderMerchantPromos();
+}
+
+function merchantCampaigns() {
+  return offers.filter(o => o.merchantId === currentUser.merchantId || o.shop.toLowerCase() === currentUser.name.toLowerCase());
+}
+
+function renderMerchantPromos() {
+  const grid = document.getElementById('merchantPromosGrid');
+  const myOffers = merchantCampaigns();
+  
+  if(!myOffers.length) {
+    grid.innerHTML = '<div class="panel"><p class="sub">No tienes campañas promocionales activas creadas en este momento.</p></div>';
+    return;
+  }
+  
+  grid.innerHTML = myOffers.map(o => {
+    const active = isCampaignActive(o);
+    const terms = o.terms && o.terms.length ? o.terms : DEFAULT_TERMS;
+    const validAt = o.validAt || ('Sucursal ' + o.branch);
+    return `
+    <article class="card">
+      <div class="cardvisual"><span class="off">${esc(o.discount)}</span><img src="${esc(o.image)}" alt="${esc(o.shop)}"></div>
+      <div class="cardbody">
+        <div class="cardtitle"><h3>${esc(o.shop)}</h3><span class="rating">${o.rating !== '' ? '★ ' + esc(o.rating) : ''}</span></div>
+        <p>${esc(o.offer)}</p>
+        <p>📍 ${esc(o.branch)}, Quito</p>
+        <div class="terms-mini"><b class="tt">Términos y condiciones</b>${termsListHTML(terms, validAt)}</div>
+        <div class="cardfoot"><small>Válido hasta ${esc(o.expires)}</small><span class="userpill ${active?'ok':'off'}">${active?'Campaña activa':'Campaña inactiva'}</span></div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function logout(){ stopScanner(); currentUser=null; showView('home'); toast('Sesión cerrada'); }
+
+async function logEvent(token,result,detail,coupon){
+  const ev = { id: uid(), token, merchant_id: currentUser?.merchantId || 'm1', merchant: currentUser?.name || 'Comercio', actor: currentUser?.user || 'comercio', result, detail, coupon_id: coupon?.id || null, at: new Date().toISOString() };
+  if(_supabase) { try { await _supabase.from('events').insert([ev]); } catch(e){} }
+}
+
+async function validateToken(input){
+  const entered=(input||'').trim().toUpperCase();
+  if(!entered){toast('Introduce o escanea un código');return}
+  
+  let c = null;
+  if(_supabase) {
+    try {
+      const { data } = await _supabase.from('coupons').select('*').or(`short_code.eq.${entered},token.eq.${entered}`).limit(1);
+      if(data && data.length > 0) c = data[0];
+    } catch(e){}
+  }
+  if(!c) c = globalCouponsStorage.find(x => x.short_code === entered || x.token === entered);
+
+  const eventCode = c?.short_code || entered;
+  if(!c){logEvent(eventCode,'NOT_FOUND','Código no reconocido',null);showScanResult('error','Código no reconocido','No encontramos un cupón con ese código.');return}
+  if(c.merchant_id!==currentUser.merchantId){logEvent(eventCode,'WRONG_MERCHANT','Cupón de otro comercio',c);showScanResult('error','Cupón de otro comercio','Este cupón pertenece a '+esc(c.merchant)+'.');return}
+  if(c.status==='REDEEMED'){logEvent(eventCode,'ALREADY_REDEEMED','Cupón ya utilizado',c);showScanResult('error','Cupón ya utilizado','Este cupón ya fue canjeado.');return}
+  if(c.status!=='ACTIVE'){logEvent(eventCode,'INACTIVE','Cupón inactivo',c);showScanResult('error','Cupón no disponible','El estado actual es '+c.status+'.');return}
+  if(c.expires_at&&Date.now()>new Date(c.expires_at).getTime()){c.status='EXPIRED'; logEvent(eventCode,'EXPIRED','Cupón vencido',c);showScanResult('error','Cupón vencido','La vigencia de este cupón terminó.');return}
+  
+  logEvent(eventCode,'READ_VALID','Lectura válida; pendiente de confirmación',c);
+  pendingCoupon=c.id;
+  showScanResult('valid','Cupón válido',`<b>${esc(c.offer)}</b><br>Comercio: ${esc(c.merchant)}<br>Cliente: ${esc(c.client)}<br>Código: <b>${esc(c.short_code||'—')}</b><br><br><button class="btn green" onclick="confirmRedeem('${c.id}')">Confirmar canje</button> <button class="btn secondary small" onclick="clearScanResult()">Cancelar</button>`);
+}
+
+function showScanResult(type,title,html){const box=document.getElementById('scanResult');box.innerHTML=`<div class="result ${type==='valid'?'notice green':'notice red'}"><h3>${type==='valid'?'✓':'✕'} ${title}</h3><p>${html}</p></div>`}
+function clearScanResult(){document.getElementById('scanResult').innerHTML='';pendingCoupon=null}
+
+async function confirmRedeem(id){
+  let c = globalCouponsStorage.find(x => x.id === id);
+  if(_supabase) {
+    try {
+      const { data } = await _supabase.from('coupons').select('*').eq('id', id).limit(1);
+      if(data && data.length > 0) c = data[0];
+    } catch(e){}
+  }
+  if(!c||c.status!=='ACTIVE'){toast('El cupón ya no está disponible');clearScanResult();return}
+  if(c.merchant_id!==currentUser.merchantId){toast('Comercio no autorizado');return}
+  
+  const redeemedAt = new Date().toISOString();
+  c.status = 'REDEEMED';
+  c.redeemed_at = redeemedAt;
+  if(_supabase) { try { await _supabase.from('coupons').update({status:'REDEEMED', redeemed_at: redeemedAt, redeemed_by: currentUser.user||'empleado'}).eq('id', id); } catch(e){} }
+  
+  logEvent(c.short_code||c.token,'REDEEMED','Canje confirmado',c);
+  showScanResult('valid','Canje confirmado','El cupón quedó inhabilitado.');
+  renderMerchant();
+  toast('Canje registrado correctamente');
+}
+
+function manualValidate(){const input=document.getElementById('manualToken');validateToken(input.value);input.value=''}
+
+async function startScanner(){
+  if(!currentUser||currentUser.role!=='merchant'){toast('Inicia sesión como comercio');return}
+  if(!window.Html5Qrcode){toast('No se pudo cargar el lector QR.');return}
+  try{
+    if(!html5Qr)html5Qr=new Html5Qrcode('reader');
+    await html5Qr.start({facingMode:'environment'},{fps:10,qrbox:{width:200,height:200}},decoded=>{
+      stopScanner();
+      const value=decoded.includes('|')?decoded.split('|').pop():decoded;
+      document.getElementById('manualToken').value='';
+      validateToken(value);
+    },()=>{});
+    toast('Cámara activada.');
+  }catch(e){toast('No se pudo activar la cámara.');}
+}
+
+async function stopScanner(){if(html5Qr){try{if(html5Qr.isScanning)await html5Qr.stop();}catch(e){}}}
+
+function renderMerchantExec(mine, ev){
+  const camps = merchantCampaigns();
+  const redeemed = mine.filter(c => c.status === 'REDEEMED');
+  const activeCoupons = mine.filter(c => couponEffStatus(c) === 'ACTIVE').length;
+  const activeCamps = camps.filter(isCampaignActive).length;
+
+  document.getElementById('merchantMetrics').innerHTML =
+    `<div class="metric"><span>Cupones canjeados</span><strong>${redeemed.length}</strong></div>`+
+    `<div class="metric"><span>Campañas activas</span><strong>${activeCamps}</strong></div>`+
+    `<div class="metric"><span>Cupones activos</span><strong>${activeCoupons}</strong></div>`+
+    `<div class="metric"><span>Lecturas</span><strong>${ev.length}</strong></div>`;
+
+  const names = [];
+  camps.forEach(o => { if(!names.includes(o.offer)) names.push(o.offer); });
+  redeemed.forEach(c => { const l = campaignLabel(c); if(!names.includes(l)) names.push(l); });
+
+  const items = names.map((n,i) => ({ label:n, value:redeemed.filter(c => campaignLabel(c) === n).length, color:chartColor(i) }));
+  document.getElementById('merchantChartCampaigns').innerHTML = hBarChart(items);
+
+  const daily = buildDailySeries(redeemed.map(c => ({ at:redeemedDate(c, ev), key:campaignLabel(c) })), names);
+  document.getElementById('merchantChartDaily').innerHTML = stackedDailyChart(daily.dayKeys, daily.series);
+}
+
+async function renderMerchant(){
+  let mine = [], ev = [];
+  if(_supabase) {
+    try {
+      const resCoupons = await _supabase.from('coupons').select('*').eq('merchant_id', currentUser.merchantId);
+      if(resCoupons.data) mine = resCoupons.data;
+      const resEvents = await _supabase.from('events').select('*').eq('merchant_id', currentUser.merchantId);
+      if(resEvents.data) ev = resEvents.data;
+    } catch(e){}
+  }
+  globalCouponsStorage.forEach(c => { if(c.merchant_id === currentUser.merchantId && !mine.some(x => x.id === c.id)) mine.push(c); });
+  
+  document.getElementById('merchantTitle').textContent=currentUser.name+' · La Carolina';
+  renderMerchantExec(mine, ev);
+  
+  document.getElementById('merchantActivity').innerHTML=ev.length ? ev.slice(0,12).map(x=>`
+    <div class="logline">
+      <div><b>${translateResult(x.result)}</b><br><span class="muted">${esc(x.detail)}</span></div>
+      <div class="right muted">${formatEcuadorDate(x.at)}</div>
+    </div>
+  `).join('') : '<p class="sub">Todavía no hay lecturas.</p>';
+}
+
+renderOffers();
+loadOffers();
+initMap();
+updateNavHeader();
+</script></body></html>
