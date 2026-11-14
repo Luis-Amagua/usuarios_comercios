@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,6 +109,12 @@ footer{background:#24211f;color:white;padding:20px 16px}
 .authbox .panel{padding:20px}
 .authhead{text-align:center;margin-bottom:15px}
 .authhead h2{margin:10px 0 3px;font-size:20px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:11px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:#806c5c;background:#fffaf6;font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.status{display:inline-block;padding:4px 7px;border-radius:20px;font-size:9px;font-weight:900}
+.s-active{background:#e9f7ed;color:#237342}.s-redeemed{background:#f0eafa;color:#6841a5}.s-expired{background:#fff0df;color:#9a5c16}.s-rejected{background:#ffeded;color:#a62f2f}
 .scannerbox{border:2px dashed #f0c6a5;border-radius:14px;background:#fffaf6;padding:14px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:10px}
 .scannericon{font-size:45px}.scanner-actions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
 .result{border-radius:11px;padding:12px;text-align:left;border:1px solid var(--line);background:white}
@@ -418,6 +424,7 @@ footer{background:#24211f;color:white;padding:20px 16px}
     </div>
   </div>
 </section>
+
 </main>
 
 <footer><div class="footerin"><div class="brand"><div class="logo" style="color:white">Cuponera<span style="color:#ff9a52">ff.</span></div><div class="tagline" style="color:#e9c8ad">descubre · ahorra · disfruta</div></div><p>© 2026 Cuponeraff · descubre · ahorra · disfruta</p></div></footer>
@@ -532,6 +539,7 @@ const DEMO={client:{user:'cliente@cuponeraff.com',pass:'cliente'},merchant:{user
 
 let globalCouponsStorage = [];
 
+// Las promociones se cargan desde la tabla public.promotions de Supabase.
 let offers = [];
 let offersLoaded = false;
 let offersLoading = false;
@@ -584,7 +592,7 @@ let activeCat='all',currentUser=null,html5Qr=null,pendingCoupon=null,leafletMap=
 
 function uid(){return 'CO-'+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now()).replaceAll('-','').slice(0,24).toUpperCase()}
 function makeShortCode(){const letters='ABCDEFGHJKLMNPQRSTUVWXYZ';let code;do{const bytes=new Uint8Array(5);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<5;i++)bytes[i]=Math.floor(Math.random()*256);code=letters[bytes[0]%letters.length]+String((bytes[1]*256+bytes[2])%10000).padStart(4,'0')}while(false);return code}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'''}[c]))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),3500)}
 
 function formatEcuadorDate(isoString) {
@@ -604,6 +612,7 @@ function translateResult(res) {
   return map[res] || res;
 }
 
+/* ===== Términos y condiciones, estado de campañas y gráficos ===== */
 const DEFAULT_TERMS=['Válido únicamente con consumo en el restaurante.','No aplica para pedidos a domicilio ni para llevar.','No aplica promoción sobre promoción ni es acumulable con otras ofertas.'];
 const CHART_COLORS=['#f47721','#2868a8','#198754','#8e44ad','#e64a38','#d4a017','#17a2b8','#6c757d'];
 function chartColor(i){return CHART_COLORS[i%CHART_COLORS.length]}
@@ -768,6 +777,7 @@ async function initMap(){
     return; 
   }
 
+  // 1. Inicializamos el mapa centrado en Quito
   leafletMap = L.map('mapContainer').setView([-0.1650, -78.4840], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
     maxZoom: 19, 
@@ -776,6 +786,7 @@ async function initMap(){
 
   let shopsToRender = [];
 
+  // 2. Consultamos los comercios directamente desde Supabase
   if(_supabase) {
     try {
       const { data, error } = await _supabase.from('merchants').select('*');
@@ -793,6 +804,7 @@ async function initMap(){
     }
   }
 
+ // 3. Pintamos los marcadores en el mapa con saltos de línea claros
   shopsToRender.forEach(s => {
     if(s.lat && s.lng) {
       L.marker([s.lat, s.lng])
@@ -1061,7 +1073,7 @@ async function renderClient(){
   document.getElementById('clientWelcome').textContent='Hola, '+(currentUser?.name||'cliente')+'. Recuerda que el  cupón es de un solo uso. Presiona «Ver cupón» para mostrar el QR en el comercio al pagar.';
   const planName = currentUser?.plan === 'monthly' ? 'Plan Mensual ($2.99)' : currentUser?.plan === 'annual' ? 'Plan Anual ($19.99)' : 'Plan Free (10 cupones)';
   const startDate = currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('es-EC') : 'Reciente';
-  const statusMsg = currentUser?.status === 'pendiente_pago' ? ' · <span style="color:var(--orange)">Pago pendiente de aprobación por admin</span>' : '';
+  const statusMsg = currentUser?.status === 'pendiente_pago' ? ' · <span style="color:var(--orange)">Pago pendiente de aprobación</span>' : '';
   document.getElementById('clientPlanInfoBox').innerHTML = `<b>Tu Estado:</b> ${planName} · <b>Fecha de inicio:</b> ${startDate}${statusMsg}`;
 
   if(_supabase && currentUser?.user) {
