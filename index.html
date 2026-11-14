@@ -54,6 +54,8 @@ label{display:block;font-size:12px;font-weight:800;margin:12px 0 5px}.sub{color:
 .qr{display:grid;place-items:center;margin:14px 0}.code{font-size:30px;font-weight:900;letter-spacing:5px;text-align:center;color:var(--o)}
 #toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#24211f;color:#fff;padding:11px 16px;border-radius:12px;z-index:50;font-size:13px;display:none;max-width:90vw;text-align:center}
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;font-size:20px;padding:8px;line-height:1}
+.logo{background:none;border:0;padding:0;color:inherit;cursor:pointer}
 </style></head>
 <body>
 <div id="app"></div><nav id="tabs"></nav><div id="sheet" onclick="if(event.target===this)closeSheet()"></div><div id="toast"></div>
@@ -73,6 +75,8 @@ function toast(t){const x=$('#toast');x.textContent=t;x.style.display='block';cl
 const fdate=d=>d?new Date(d).toLocaleString('es-EC',{timeZone:'America/Guayaquil',dateStyle:'medium',timeStyle:'short'}):'';
 const fday=d=>d?new Date(d).toLocaleDateString('es-EC'):'';
 const okMail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+const pw=(id,ph='',ac='current-password',min='')=>`<div style="position:relative"><input class="field" id="${id}" type="password" required autocomplete="${ac}" placeholder="${ph}" ${min}style="padding-right:48px"><button type="button" class="eye" onclick="eye('${id}',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div>`;
+function eye(id,b){const i=$('#'+id),v=i.type==='password';i.type=v?'text':'password';b.textContent=v?'🙈':'👁️'}
 const PLAN={free:'Plan Free · 10 cupones',monthly:'Plan Mensual · $2.99',annual:'Plan Anual · $19.99'};
 const RES={READ_VALID:'Lectura válida',REDEEMED:'Canje confirmado',NOT_FOUND:'No reconocido',WRONG_MERCHANT:'Otro comercio',ALREADY_REDEEMED:'Ya utilizado',EXPIRED:'Vencido',INACTIVE:'Inactivo'};
 
@@ -103,7 +107,7 @@ function render(){
  t.style.display='flex';
  t.innerHTML=items.map(i=>`<button class="${view===i[0]?'on':''}" onclick="go('${i[0]}')"><span>${i[1]}</span>${i[2]}</button>`).join('');
  const V={home:homeH,map:mapH,coupons:couponsH,profile:profileH,validate:validateH,exec:execH,promos:promosH}[view];
- a.innerHTML=`<div class="top"><div class="logo">Cuponera<b>ff.</b></div><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):'🏪 '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
+ a.innerHTML=`<div class="top"><button class="logo" onclick="go(me.role==='client'?'home':'validate')" aria-label="Ir a Inicio">Cuponera<b>ff.</b></button><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):'🏪 '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
  if(view==='map')initMap();if(view==='coupons')loadCoupons().then(()=>{if(view==='coupons')$('#cl').innerHTML=couponListH()});
  if(view==='validate'||view==='exec')loadMerchant();
 }
@@ -114,7 +118,7 @@ function logout(){stopScan();me=null;coupons=[];localStorage.removeItem('cf_me')
 function authH(){return`<div class="wrap"><div class="hero"><div class="logo" style="font-size:34px">Cuponera<b>ff.</b></div><h1>Descubre.<br><em>Ahorra.</em> Disfruta.</h1><p class="sub">Cupones en tus restaurantes favoritos de Quito.</p></div>
 <form class="card" onsubmit="clientLogin(event)"><h3>Inicia sesión</h3>
 <label>Correo electrónico</label><input class="field" id="le" type="email" required autocomplete="username">
-<label>Contraseña</label><input class="field" id="lp" type="password" required autocomplete="current-password">
+<label>Contraseña</label>${pw('lp')}
 <div class="err" id="lerr">Usuario o contraseña incorrectos.</div>
 <button class="btn" style="margin-top:16px">Iniciar sesión</button>
 <p class="sub" style="text-align:center;margin-top:14px">¿Aún no tienes cuenta? <button type="button" class="link" onclick="openRegister()">Regístrate</button></p></form>
@@ -123,7 +127,7 @@ function authH(){return`<div class="wrap"><div class="hero"><div class="logo" st
 function mloginH(){return`<div class="wrap"><button class="link" onclick="go('auth')">← Volver</button>
 <div class="hero"><div class="logo" style="font-size:30px">Cuponera<b>ff.</b></div><h2 style="margin-top:8px">Acceso comercios</h2></div>
 <form class="card" onsubmit="merchantLogin(event)"><label>Usuario</label><input class="field" id="mu" required autocomplete="username" placeholder="Usuario del comercio">
-<label>Contraseña</label><input class="field" id="mp" type="password" required autocomplete="current-password">
+<label>Contraseña</label>${pw('mp')}
 <div class="err" id="merr">Usuario o contraseña incorrectos.</div>
 <button class="btn" style="margin-top:16px">Ingresar</button></form>
 <p class="sub" style="text-align:center">¿Quieres ser comercio socio? <button class="link" onclick="openMReq()">Solicítalo aquí</button></p></div>`}
@@ -139,22 +143,27 @@ async function merchantLogin(e){e.preventDefault();
  if(sb){try{const{data}=await sb.from('merchants').select('*').eq('username',u).eq('password',p).limit(1);if(data&&data.length)m=data[0]}catch(x){}}
  const demo=u===DEMO.merchant.user&&p===DEMO.merchant.pass;
  if(!m&&!demo){$('#merr').style.display='block';toast('Usuario o contraseña incorrectos');return}
- setMe({role:'merchant',merchantId:m?m.id:DEMO.merchant.id,name:m?m.name:DEMO.merchant.name,user:u});loadOffers()}
+ setMe({role:'merchant',merchantId:m?m.id:DEMO.merchant.id,name:m?m.name:DEMO.merchant.name,user:u,createdAt:m?m.created_at:null});loadOffers()}
 
 // ====== Hojas (modales) ======
 function sheet(h){const s=$('#sheet');s.innerHTML='<div class="sh"><button class="x" onclick="closeSheet()" aria-label="Cerrar">×</button>'+h+'</div>';s.classList.add('show')}
 function closeSheet(){$('#sheet').classList.remove('show')}
 function openRegister(){sheet(`<h2>Crear cuenta</h2><p class="sub">Ingresa tus datos para empezar a solicitar cupones.</p>
 <form onsubmit="regStep1(event)"><div class="g2"><div><label>Nombre</label><input class="field" id="rf" required maxlength="60"></div><div><label>Apellido</label><input class="field" id="rl" required maxlength="60"></div></div>
-<label>Fecha de nacimiento</label><input class="field" id="rb" type="date" required>
+<label>Fecha de nacimiento</label><input class="field" id="rb" type="date" required max="${new Date().toISOString().slice(0,10)}" oninput="chkAge()" onchange="chkAge()">
+<div class="err" id="rbe"></div>
 <label>Correo electrónico</label><input class="field" id="rm" type="email" required maxlength="120">
 <label>Celular (10 dígitos)</label><input class="field" id="rph" type="tel" inputmode="numeric" maxlength="10" required placeholder="0991234567" oninput="this.value=this.value.replace(/\\D/g,'')">
-<label>Contraseña</label><input class="field" id="rp1" type="password" required minlength="8" placeholder="Mínimo 8 caracteres">
-<label>Confirmar contraseña</label><input class="field" id="rp2" type="password" required minlength="8">
+<label>Contraseña</label>${pw('rp1','Mínimo 8 caracteres','new-password','minlength="8" ')}
+<label>Confirmar contraseña</label>${pw('rp2','','new-password','minlength="8" ')}
 <label style="display:flex;gap:8px;font-weight:600"><input id="rc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Protección de Datos</button>.</span></label>
 <button class="btn" style="margin-top:14px">Continuar →</button></form>`)}
 function openPrivacy(){sheet(`<h2>Protección de datos</h2><p class="sub" style="margin:8px 0"><b>1. Responsable.</b> Cuponeraff tratará los datos personales proporcionados.</p><p class="sub" style="margin:8px 0"><b>2. Datos tratados.</b> Nombres, apellidos, fecha de nacimiento, correo electrónico y celular.</p><p class="sub" style="margin:8px 0"><b>3. Finalidades.</b> Crear y administrar cuentas; emitir y gestionar cupones.</p><p class="sub" style="margin:8px 0"><b>4. Derechos.</b> Puedes solicitar acceso, rectificación y eliminación de tus datos.</p>`)}
+function chkAge(){const v=$('#rb').value,e=$('#rbe');if(!v){e.style.display='none';return false}
+ const b=new Date(v),n=new Date();let a=n.getFullYear()-b.getFullYear();const m=n.getMonth()-b.getMonth();if(m<0||(m===0&&n.getDate()<b.getDate()))a--;
+ const bad=isNaN(a)||a<18||a>110;e.textContent=isNaN(a)||a<0||a>110?'Ingresa una fecha de nacimiento válida.':'Debes ser mayor de 18 años para registrarte.';e.style.display=bad?'block':'none';return !bad}
 function regStep1(e){e.preventDefault();
+ if(!chkAge())return toast('Debes ser mayor de 18 años para registrarte.');
  const email=$('#rm').value.trim().toLowerCase(),phone=$('#rph').value.trim();
  if(!okMail(email))return toast('Ingresa un correo válido.');
  if(phone.length!==10)return toast('El celular debe tener 10 dígitos.');
@@ -229,10 +238,29 @@ function showCoupon(id){const c=coupons.find(x=>x.id===id);if(!c)return;
 
 // ====== Perfil (cliente y comercio) ======
 function profileH(){const cl=me.role==='client';
- return`<div class="card" style="text-align:center"><div class="avatar">${esc(me.name[0]||'?').toUpperCase()}</div><h2>${esc(me.name)}</h2>${cl?`<p class="sub">${esc(me.user)}</p>`:'<p class="sub">Cuenta de comercio</p>'}</div>
- ${cl?`<div class="card"><div class="kv"><span>Correo</span><b>${esc(me.user)}</b></div><div class="kv"><span>Plan actual</span><b>${PLAN[me.plan]||PLAN.free}</b></div><div class="kv"><span>Miembro desde</span><b>${me.createdAt?fday(me.createdAt):'Reciente'}</b></div>${me.status==='pendiente_pago'?'<div class="kv"><span>Estado</span><b style="color:var(--o)">Pago pendiente de aprobación</b></div>':''}</div>`:''}
+ return`<div class="card" style="text-align:center"><div class="avatar">${esc(me.name[0]||'?').toUpperCase()}</div><h2>${esc(me.name)}</h2><p class="sub">${cl?esc(me.user):'Cuenta de comercio'}</p></div>
+ <div class="card">${cl?`<div class="kv"><span>Usuario (correo)</span><b>${esc(me.user)}</b></div><div class="kv"><span>Plan actual</span><b>${PLAN[me.plan]||PLAN.free}</b></div><div class="kv"><span>Miembro desde</span><b>${me.createdAt?fday(me.createdAt):'Reciente'}</b></div>${me.status==='pendiente_pago'?'<div class="kv"><span>Estado</span><b style="color:var(--o)">Pago pendiente de aprobación</b></div>':''}`
+ :`<div class="kv"><span>Usuario</span><b>${esc(me.user||'—')}</b></div><div class="kv"><span>Socio desde</span><b>${me.createdAt?fday(me.createdAt):'—'}</b></div>`}</div>
+ <div class="card" id="cpw"><button class="btn sec" onclick="openCpw()">🔑 Cambiar contraseña</button></div>
  ${ip?'<button class="btn sec" style="margin-bottom:10px" onclick="ip.prompt();ip=null;render()">📲 Instalar app</button>':''}
  <button class="btn red" onclick="logout()">Cerrar sesión</button>`}
+let cpCur='';
+function openCpw(){cpCur='';$('#cpw').innerHTML=`<h3>Cambiar contraseña</h3>
+ <form onsubmit="cpVerify(event)"><label>Contraseña actual</label>${pw('cp0')}<div class="err" id="cpe">La contraseña actual es incorrecta.</div><button class="btn" style="margin-top:12px" id="cpb">Verificar</button></form>
+ <form id="cpn" class="hide" onsubmit="cpSave(event)"><label>Nueva contraseña</label>${pw('cp1','Mínimo 8 caracteres','new-password','minlength="8" ')}<label>Confirmar nueva contraseña</label>${pw('cp2','','new-password','minlength="8" ')}<div class="err" id="cpe2"></div><button class="btn" style="margin-top:12px">Guardar contraseña</button></form>
+ <button type="button" class="link" style="margin-top:12px" onclick="render()">Cancelar</button>`}
+async function cpVerify(e){e.preventDefault();const cur=$('#cp0').value,cl=me.role==='client';let ok=false;
+ if(sb){try{const t=cl?sb.from('users').select('email').eq('email',me.user):sb.from('merchants').select('id').eq('id',me.merchantId);const{data}=await t.eq('password',cur).limit(1);ok=!!(data&&data.length)}catch(x){}}
+ if(!ok)ok=cl?(me.user===DEMO.client.user&&cur===DEMO.client.pass):(me.merchantId===DEMO.merchant.id&&cur===DEMO.merchant.pass);
+ if(!ok){$('#cpe').style.display='block';return toast('La contraseña actual es incorrecta')}
+ cpCur=cur;$('#cpe').style.display='none';$('#cp0').readOnly=true;$('#cpb').classList.add('hide');$('#cpn').classList.remove('hide');$('#cp1').focus()}
+async function cpSave(e){e.preventDefault();const n=$('#cp1').value,er=$('#cpe2'),cl=me.role==='client';
+ const bad=n.length<8?'La nueva contraseña debe tener mínimo 8 caracteres.':n!==$('#cp2').value?'Las contraseñas no coinciden.':n===cpCur?'La nueva contraseña debe ser distinta a la actual.':'';
+ if(bad){er.textContent=bad;er.style.display='block';return}
+ let done=false;
+ if(sb){try{const t=cl?sb.from('users').update({password:n}).eq('email',me.user):sb.from('merchants').update({password:n}).eq('id',me.merchantId);const{data,error}=await t.eq('password',cpCur).select();done=!error&&!!data&&data.length>0}catch(x){}}
+ if(!done){er.textContent='No se pudo guardar. Las cuentas de demostración no pueden cambiar su contraseña.';er.style.display='block';return}
+ cpCur='';toast('Contraseña actualizada');render()}
 
 // ====== Comercio ======
 let mine=[],ev=[];
@@ -280,7 +308,12 @@ function execBody(){
  const red=mine.filter(c=>c.status==='REDEEMED'),camps=myOffers(),act=mine.filter(c=>eff(c)==='ACTIVE').length;
  const rows=camps.map(o=>({n:o.offer,v:red.filter(c=>c.promotion_id===o.id||c.offer===o.offer).length})),mx=Math.max(1,...rows.map(r=>r.v));
  return`<div class="metrics"><div><span>Canjeados</span><b>${red.length}</b></div><div><span>Campañas activas</span><b>${camps.filter(isActive).length}</b></div><div><span>Cupones activos</span><b>${act}</b></div><div><span>Lecturas</span><b>${ev.length}</b></div></div>
- <div class="card"><h3 style="margin-bottom:10px">Canjes por campaña</h3>${rows.length?rows.map(r=>`<div class="row"><small>${esc(r.n)}</small><b>${r.v}</b></div><div class="bar"><i style="width:${r.v/mx*100}%"></i></div>`).join(''):'<p class="sub">Aún no hay campañas.</p>'}</div>`}
+ <div class="card"><h3 style="margin-bottom:10px">Canjes por campaña</h3>${rows.length?rows.map(r=>`<div class="row"><small>${esc(r.n)}</small><b>${r.v}</b></div><div class="bar"><i style="width:${r.v/mx*100}%"></i></div>`).join(''):'<p class="sub">Aún no hay campañas.</p>'}</div>${dayH(red)}`}
+const rdt=c=>c.redeemed_at||(ev.find(x=>x.result==='REDEEMED'&&x.coupon_id===c.id)||{}).at||c.created_at;
+function dayH(red){
+ const g={};red.slice().sort((a,b)=>new Date(rdt(b))-new Date(rdt(a))).forEach(c=>{const k=new Date(rdt(c)).toLocaleDateString('en-CA',{timeZone:'America/Guayaquil'});(g[k]=g[k]||[]).push(c)});
+ const ks=Object.keys(g).slice(0,14);
+ return`<div class="card"><h3>Canjes por día</h3><p class="sub" style="margin-bottom:4px">Quién canjeó y en qué campaña, día por día.</p>${ks.length?ks.map(k=>`<div style="margin-top:14px"><div class="row"><b>${new Date(k+'T12:00:00').toLocaleDateString('es-EC',{weekday:'long',day:'numeric',month:'long'})}</b><span class="pill p-ok">${g[k].length} canje${g[k].length>1?'s':''}</span></div>${g[k].map(c=>`<div class="log"><div><b>${esc(c.offer)}</b><br><span class="sub">${esc(c.client)}</span></div><span class="sub">${new Date(rdt(c)).toLocaleTimeString('es-EC',{timeZone:'America/Guayaquil',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')}</div>`).join(''):'<p class="sub">Aún no hay canjes confirmados.</p>'}</div>`}
 function execH(){return`<div id="ex">${execBody()}</div>`}
 function promosH(){const l=myOffers();if(!l.length)return'<div class="empty">No tienes campañas creadas en este momento.</div>';
  return l.map(o=>{const a=isActive(o);return`<article class="card offer"><div class="vis"><span class="badge">${esc(o.discount)}</span><img loading="lazy" src="${esc(o.image)}" alt=""></div><div class="ob"><h3>${esc(o.shop)}</h3><p class="sub">${esc(o.offer)}</p><p class="sub">📍 ${esc(o.branch)}, Quito</p>${termsH(o.terms.length?o.terms:TERMS,o.validAt||('Sucursal '+o.branch))}<div class="row"><small class="sub">Hasta ${esc(o.expires)}</small><span class="pill ${a?'p-ok':'p-exp'}">${a?'ACTIVA':'INACTIVA'}</span></div></div></article>`}).join('')}
