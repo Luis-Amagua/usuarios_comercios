@@ -56,6 +56,7 @@ label{display:block;font-size:12px;font-weight:800;margin:12px 0 5px}.sub{color:
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
 .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;font-size:20px;padding:8px;line-height:1}
 .logo{background:none;border:0;padding:0;color:inherit;cursor:pointer}
+.tag{font-size:13px;font-weight:700;color:var(--mu);white-space:nowrap;margin:2px 0 8px;letter-spacing:.3px}.tag b{color:var(--o)}
 </style></head>
 <body>
 <div id="app"></div><nav id="tabs"></nav><div id="sheet" onclick="if(event.target===this)closeSheet()"></div><div id="toast"></div>
@@ -115,7 +116,7 @@ function setMe(u){me=u;localStorage.setItem('cf_me',JSON.stringify(u));view=u.ro
 function logout(){stopScan();me=null;coupons=[];localStorage.removeItem('cf_me');view='auth';render();toast('Sesión cerrada')}
 
 // ====== Acceso ======
-function authH(){return`<div class="wrap"><div class="hero"><div class="logo" style="font-size:34px">Cuponera<b>ff.</b></div><h1>Descubre.<br><em>Ahorra.</em> Disfruta.</h1><p class="sub">Cupones en tus restaurantes favoritos de Quito.</p></div>
+function authH(){return`<div class="wrap"><div class="hero"><div class="logo" style="font-size:34px">Cuponera<b>ff.</b></div><p class="tag">Descubre <b>·</b> Ahorra <b>·</b> Disfruta</p><p class="sub">Cupones en tus restaurantes favoritos de Quito.</p></div>
 <form class="card" onsubmit="clientLogin(event)"><h3>Inicia sesión</h3>
 <label>Correo electrónico</label><input class="field" id="le" type="email" required autocomplete="username">
 <label>Contraseña</label>${pw('lp')}
@@ -153,12 +154,19 @@ function openRegister(){sheet(`<h2>Crear cuenta</h2><p class="sub">Ingresa tus d
 <label>Fecha de nacimiento</label><input class="field" id="rb" type="date" required max="${new Date().toISOString().slice(0,10)}" oninput="chkAge()" onchange="chkAge()">
 <div class="err" id="rbe"></div>
 <label>Correo electrónico</label><input class="field" id="rm" type="email" required maxlength="120">
-<label>Celular (10 dígitos)</label><input class="field" id="rph" type="tel" inputmode="numeric" maxlength="10" required placeholder="0991234567" oninput="this.value=this.value.replace(/\\D/g,'')">
+<label>Celular</label><input class="field" id="rph" type="tel" inputmode="numeric" maxlength="10" required placeholder="09XXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'');chkPhone('rph','rphe')"><div class="err" id="rphe"></div>
 <label>Contraseña</label>${pw('rp1','Mínimo 8 caracteres','new-password','minlength="8" ')}
 <label>Confirmar contraseña</label>${pw('rp2','','new-password','minlength="8" ')}
 <label style="display:flex;gap:8px;font-weight:600"><input id="rc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Protección de Datos</button>.</span></label>
 <button class="btn" style="margin-top:14px">Continuar →</button></form>`)}
 function openPrivacy(){sheet(`<h2>Protección de datos</h2><p class="sub" style="margin:8px 0"><b>1. Responsable.</b> Cuponeraff tratará los datos personales proporcionados.</p><p class="sub" style="margin:8px 0"><b>2. Datos tratados.</b> Nombres, apellidos, fecha de nacimiento, correo electrónico y celular.</p><p class="sub" style="margin:8px 0"><b>3. Finalidades.</b> Crear y administrar cuentas; emitir y gestionar cupones.</p><p class="sub" style="margin:8px 0"><b>4. Derechos.</b> Puedes solicitar acceso, rectificación y eliminación de tus datos.</p>`)}
+function phoneErr(v){
+ if(v.length&&!'09'.startsWith(v.slice(0,2)))return'El celular debe empezar con 09.';
+ if(v.length!==10)return'El celular debe tener exactamente 10 dígitos.';
+ const r=v.slice(2);
+ if(/^(\d)\1+$/.test(r)||'01234567890123456789'.includes(r)||'98765432109876543210'.includes(r))return'Ingresa un número de celular real, no uno inventado.';
+ return''}
+function chkPhone(id,eid,force){const v=$('#'+id).value,e=$('#'+eid),m=(v||force)?phoneErr(v):'';e.textContent=m;e.style.display=m?'block':'none';return !phoneErr(v)}
 function chkAge(){const v=$('#rb').value,e=$('#rbe');if(!v){e.style.display='none';return false}
  const b=new Date(v),n=new Date();let a=n.getFullYear()-b.getFullYear();const m=n.getMonth()-b.getMonth();if(m<0||(m===0&&n.getDate()<b.getDate()))a--;
  const bad=isNaN(a)||a<18||a>110;e.textContent=isNaN(a)||a<0||a>110?'Ingresa una fecha de nacimiento válida.':'Debes ser mayor de 18 años para registrarte.';e.style.display=bad?'block':'none';return !bad}
@@ -166,7 +174,7 @@ function regStep1(e){e.preventDefault();
  if(!chkAge())return toast('Debes ser mayor de 18 años para registrarte.');
  const email=$('#rm').value.trim().toLowerCase(),phone=$('#rph').value.trim();
  if(!okMail(email))return toast('Ingresa un correo válido.');
- if(phone.length!==10)return toast('El celular debe tener 10 dígitos.');
+ if(!chkPhone('rph','rphe',true))return toast($('#rphe').textContent);
  if($('#rp1').value!==$('#rp2').value)return toast('Las contraseñas no coinciden');
  pu={email,first:$('#rf').value.trim(),last:$('#rl').value.trim(),birth:$('#rb').value,phone,password:$('#rp1').value,plan:'free',status:'activo',created_at:new Date().toISOString()};
  plan='free';planSheet()}
@@ -183,14 +191,14 @@ async function regFinish(){
 function openMReq(){sheet(`<h2>Quiero ser comercio socio</h2><p class="sub">Revisaremos tu información y te contactaremos.</p>
 <form onsubmit="sendMReq(event)"><label>Nombre del comercio</label><input class="field" id="bn" required maxlength="120">
 <label>Correo electrónico</label><input class="field" id="be" type="email" required maxlength="120">
-<label>Celular (10 dígitos)</label><input class="field" id="bp" type="tel" inputmode="numeric" maxlength="10" required oninput="this.value=this.value.replace(/\\D/g,'')">
+<label>Celular</label><input class="field" id="bp" type="tel" inputmode="numeric" maxlength="10" required placeholder="09XXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'');chkPhone('bp','bpe')"><div class="err" id="bpe"></div>
 <label>Dirección</label><input class="field" id="ba" required maxlength="220" placeholder="Calle, sector y ciudad">
 <label>Instagram (opcional)</label><input class="field" id="bi"><label>TikTok (opcional)</label><input class="field" id="bt"><label>Facebook (opcional)</label><input class="field" id="bf">
 <label style="display:flex;gap:8px;font-weight:600"><input id="bc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Privacidad</button>.</span></label>
 <button class="btn" style="margin-top:14px">Enviar solicitud</button></form>`)}
 async function sendMReq(e){e.preventDefault();
  const email=$('#be').value.trim(),phone=$('#bp').value.trim();
- if(!okMail(email))return toast('Ingresa un correo válido.');if(phone.length!==10)return toast('El celular debe tener 10 dígitos.');
+ if(!okMail(email))return toast('Ingresa un correo válido.');if(!chkPhone('bp','bpe',true))return toast($('#bpe').textContent);
  const r={id:uid(),name:$('#bn').value.trim(),email,phone,address:$('#ba').value.trim(),instagram:$('#bi').value.trim(),tiktok:$('#bt').value.trim(),facebook:$('#bf').value.trim(),status:'PENDIENTE',created_at:new Date().toISOString()};
  if(sb){try{await sb.from('merchant_requests').insert([r])}catch(x){}}
  sheet('<div class="empty"><div style="font-size:42px">🎉</div><h2>¡Gracias por tu interés!</h2><p class="sub" style="margin:8px 0 16px">Revisaremos tu solicitud y nos pondremos en contacto contigo.</p><button class="btn" onclick="closeSheet()">Listo</button></div>')}
@@ -217,7 +225,7 @@ async function claim(id){
 function mapH(){return`<div id="map"></div>`}
 async function initMap(){
  map=L.map('map').setView([-0.165,-78.484],13);
- L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'© OpenStreetMap © CARTO'}).addTo(map);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
  setTimeout(()=>map.invalidateSize(),100);
  if(!sb)return;
  try{const{data}=await sb.from('merchants').select('*');(data||[]).forEach(m=>{if(m.lat&&m.lng)L.marker([m.lat,m.lng]).addTo(map).bindPopup(`<b>${esc(m.name)}</b><br>${esc(m.category||'Aliado')}<br><small>${esc(m.address||m.branch||'Quito')}</small><br><a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">Cómo llegar</a>`)})}catch(e){}}
@@ -268,7 +276,7 @@ const myOffers=()=>offers.filter(o=>o.merchantId===me.merchantId||o.shop.toLower
 async function loadMerchant(){
  if(sb){try{const a=await sb.from('coupons').select('*').eq('merchant_id',me.merchantId);if(a.data)mine=a.data;const b=await sb.from('events').select('*').eq('merchant_id',me.merchantId).order('at',{ascending:false});if(b.data)ev=b.data}catch(e){}}
  const al=$('#act');if(al)al.innerHTML=ev.length?ev.slice(0,12).map(x=>`<div class="log"><div><b>${RES[x.result]||esc(x.result)}</b><br><span class="sub">${esc(x.detail)}</span></div><span class="sub" style="text-align:right">${fdate(x.at)}</span></div>`).join(''):'<p class="sub">Todavía no hay lecturas.</p>';
- const ex=$('#ex');if(ex)ex.innerHTML=execBody()}
+ const ex=$('#ex');if(ex){ex.innerHTML=execBody();const sc=$('#dsc');if(sc)sc.scrollLeft=sc.scrollWidth}}
 function validateH(){return`<div class="card"><h3>Validar cupón</h3><p class="sub">Escanea el QR o escribe el código de 5 caracteres.</p>
  <div id="reader" style="width:100%;margin-top:12px"></div>
  <div class="g2" style="margin:12px 0"><button class="btn sm" onclick="startScan()">📷 Activar cámara</button><button class="btn sm sec" onclick="stopScan()">Detener</button></div>
@@ -310,10 +318,22 @@ function execBody(){
  return`<div class="metrics"><div><span>Canjeados</span><b>${red.length}</b></div><div><span>Campañas activas</span><b>${camps.filter(isActive).length}</b></div><div><span>Cupones activos</span><b>${act}</b></div><div><span>Lecturas</span><b>${ev.length}</b></div></div>
  <div class="card"><h3 style="margin-bottom:10px">Canjes por campaña</h3>${rows.length?rows.map(r=>`<div class="row"><small>${esc(r.n)}</small><b>${r.v}</b></div><div class="bar"><i style="width:${r.v/mx*100}%"></i></div>`).join(''):'<p class="sub">Aún no hay campañas.</p>'}</div>${dayH(red)}`}
 const rdt=c=>c.redeemed_at||(ev.find(x=>x.result==='REDEEMED'&&x.coupon_id===c.id)||{}).at||c.created_at;
+const COLORS=['#f47721','#2868a8','#198754','#8e44ad','#e64a38','#d4a017','#17a2b8','#6c757d'];
 function dayH(red){
- const g={};red.slice().sort((a,b)=>new Date(rdt(b))-new Date(rdt(a))).forEach(c=>{const k=new Date(rdt(c)).toLocaleDateString('en-CA',{timeZone:'America/Guayaquil'});(g[k]=g[k]||[]).push(c)});
- const ks=Object.keys(g).slice(0,14);
- return`<div class="card"><h3>Canjes por día</h3><p class="sub" style="margin-bottom:4px">Quién canjeó y en qué campaña, día por día.</p>${ks.length?ks.map(k=>`<div style="margin-top:14px"><div class="row"><b>${new Date(k+'T12:00:00').toLocaleDateString('es-EC',{weekday:'long',day:'numeric',month:'long'})}</b><span class="pill p-ok">${g[k].length} canje${g[k].length>1?'s':''}</span></div>${g[k].map(c=>`<div class="log"><div><b>${esc(c.offer)}</b><br><span class="sub">${esc(c.client)}</span></div><span class="sub">${new Date(rdt(c)).toLocaleTimeString('es-EC',{timeZone:'America/Guayaquil',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')}</div>`).join(''):'<p class="sub">Aún no hay canjes confirmados.</p>'}</div>`}
+ const lab=c=>(offers.find(o=>o.id===c.promotion_id)||{}).offer||c.offer||'Campaña';
+ const names=[];myOffers().forEach(o=>{if(!names.includes(o.offer))names.push(o.offer)});red.forEach(c=>{const l=lab(c);if(!names.includes(l))names.push(l)});
+ const key=t=>new Date(t).toLocaleDateString('en-CA',{timeZone:'America/Guayaquil'});
+ const days=[];for(let i=29;i>=0;i--)days.push(key(Date.now()-i*864e5));
+ const data=Object.fromEntries(days.map(d=>[d,{}]));
+ red.forEach(c=>{const d=key(rdt(c));if(data[d]){const l=lab(c);data[d][l]=(data[d][l]||0)+1}});
+ const tot=d=>Object.values(data[d]).reduce((a,b)=>a+b,0),mx=Math.max(1,...days.map(tot));
+ const head='<h3>Canjes por día</h3><p class="sub" style="margin-bottom:10px">Últimos 30 días. Cada color es una campaña.</p>';
+ if(!days.some(d=>tot(d)>0))return`<div class="card">${head}<p class="sub">Aún no hay canjes confirmados en los últimos 30 días.</p></div>`;
+ const legend=names.map((n,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:0 12px 6px 0;font-size:12px"><i style="width:10px;height:10px;border-radius:3px;background:${COLORS[i%8]}"></i>${esc(n)}</span>`).join('');
+ const cols=days.map(d=>{const t=tot(d),segs=names.map((n,i)=>{const v=data[d][n]||0;return v?`<div title="${esc(n)}: ${v}" style="height:${v/mx*100}%;background:${COLORS[i%8]}"></div>`:''}).join('');
+  const mo=(d.slice(8)==='01'||d===days[0])?new Date(d+'T12:00:00').toLocaleDateString('es-EC',{month:'short'}):'';
+  return`<div style="flex:0 0 24px;display:flex;flex-direction:column;align-items:center"><small style="font-size:10px;font-weight:800;height:14px">${t||''}</small><div style="height:130px;width:100%;display:flex;flex-direction:column-reverse;gap:1px;border-bottom:1px solid var(--ln)">${segs}</div><small style="font-size:10px;color:var(--mu);margin-top:3px">${d.slice(8)}</small><small style="font-size:10px;color:var(--o);font-weight:800;height:12px">${mo}</small></div>`}).join('');
+ return`<div class="card">${head}<div>${legend}</div><div style="display:flex"><div style="display:flex;flex-direction:column;justify-content:space-between;height:130px;margin-top:14px;padding-right:6px;font-size:10px;color:var(--mu);text-align:right"><span>${mx}</span><span>0</span></div><div id="dsc" style="overflow-x:auto;flex:1"><div style="display:flex;gap:3px;min-width:max-content">${cols}</div></div></div></div>`}
 function execH(){return`<div id="ex">${execBody()}</div>`}
 function promosH(){const l=myOffers();if(!l.length)return'<div class="empty">No tienes campañas creadas en este momento.</div>';
  return l.map(o=>{const a=isActive(o);return`<article class="card offer"><div class="vis"><span class="badge">${esc(o.discount)}</span><img loading="lazy" src="${esc(o.image)}" alt=""></div><div class="ob"><h3>${esc(o.shop)}</h3><p class="sub">${esc(o.offer)}</p><p class="sub">📍 ${esc(o.branch)}, Quito</p>${termsH(o.terms.length?o.terms:TERMS,o.validAt||('Sucursal '+o.branch))}<div class="row"><small class="sub">Hasta ${esc(o.expires)}</small><span class="pill ${a?'p-ok':'p-exp'}">${a?'ACTIVA':'INACTIVA'}</span></div></div></article>`}).join('')}
