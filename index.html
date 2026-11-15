@@ -50,7 +50,7 @@ label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#4a41
 .bar{height:8px;background:var(--ln);border-radius:9px;margin:5px 0 11px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--o2),var(--o));border-radius:9px}
 .res{border-radius:14px;padding:11px;margin-top:12px;font-size:12.5px}.res.ok{background:#e1f6ec}.res.no{background:#fde7e4}
 .log{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:12px}
-#sheet{position:fixed;inset:0;background:#1d120a80;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);z-index:20;display:none;align-items:flex-end;justify-content:center}#sheet.show{display:flex}
+#sheet{position:fixed;inset:0;background:#1d120a80;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);z-index:20;display:none;align-items:flex-end;justify-content:center}#sheet.show{display:flex}#sheet2{position:fixed;inset:0;background:#1d120a80;z-index:30;display:none;align-items:flex-end;justify-content:center}#sheet2.show{display:flex}
 .sh{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:28px 28px 0 0;padding:18px 17px calc(20px + env(safe-area-inset-bottom));position:relative}
 .sh:before{content:"";display:block;width:38px;height:4px;border-radius:4px;background:#e8dcd2;margin:-6px auto 10px}
 .x{position:absolute;right:13px;top:13px;background:var(--cr);width:32px;height:32px;border-radius:50%;font-size:18px;line-height:1;z-index:2}
@@ -62,7 +62,7 @@ label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#4a41
 .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;font-size:18px;padding:8px;line-height:1}
 </style></head>
 <body>
-<div id="app"></div><nav id="tabs"></nav><div id="sheet" onclick="if(event.target===this)closeSheet()"></div><div id="toast"></div>
+<div id="app"></div><nav id="tabs"></nav><div id="sheet" onclick="if(event.target===this)closeSheet()"></div><div id="sheet2" onclick="if(event.target===this)closeLegal()"></div><div id="toast"></div>
 <script>
 // ====== CONFIGURACIÓN: pega aquí tus datos reales de Supabase ======
 const SB_URL='https://rrflbkkrhmayutwubfon.supabase.co', SB_KEY='sb_publishable_RoM1wH4v0woX81X2lglBzQ_eE3dxIQd';
@@ -90,7 +90,7 @@ function norm(r){let t=r.terms??[];if(typeof t==='string'){try{t=JSON.parse(t)}c
 async function loadOffers(){
  if(!sb){toast('Sin conexión con la base de datos.');return}
  try{const{data,error}=await sb.from('promotions').select('id,merchant_id,shop,branch,category,discount,offer,image,rating,expires,description,expires_iso,active,valid_at,terms').order('created_at',{ascending:false});
-  if(error)throw error;offers=(data||[]).map(norm);loaded=true;if(['home','promos','exec'].includes(view))render()}
+  if(error)throw error;offers=(data||[]).map(norm);loaded=true;try{const r=await sb.from('merchants').select('*');if(r.data)mer=r.data}catch(e){}if(['home','promos','exec'].includes(view))render()}
  catch(e){console.error(e);toast('No se pudieron cargar las promociones.')}}
 function isActive(o){if(!o||o.active!==true)return false;if(o.expiresISO){const t=new Date(o.expiresISO+'T23:59:59-05:00').getTime();if(!isNaN(t)&&Date.now()>t)return false}return true}
 function eff(c){const e=c.expires_at;return c.status==='ACTIVE'&&e&&Date.now()>new Date(e).getTime()?'EXPIRED':c.status}
@@ -111,7 +111,7 @@ function render(){
  t.style.display='flex';
  t.innerHTML=items.map(i=>`<button class="${view===i[0]?'on':''}" onclick="go('${i[0]}')"><span>${i[1]}</span>${i[2]}</button>`).join('');
  const V={home:homeH,map:mapH,coupons:couponsH,profile:profileH,validate:validateH,exec:execH,promos:promosH}[view];
- a.innerHTML=`<div class="top"><button class="logo" onclick="go(me.role==='client'?'home':'validate')" aria-label="Ir a Inicio">Cuponera<b>ff.</b></button><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):'🍽️ '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
+ a.innerHTML=`<div class="top"><button class="logo" onclick="go(me.role==='client'?'home':'validate')" aria-label="Ir a Inicio">Cuponera<b>ff.</b></button><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):LOGO+' '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
  if(view==='map')initMap();if(view==='coupons')loadCoupons().then(()=>{if(view==='coupons')$('#cl').innerHTML=couponListH()});
  if(view==='validate'||view==='exec')loadMerchant();
 }
@@ -127,7 +127,7 @@ function authH(){return`<div class="wrap"><div class="hero"><div class="logo" st
 <button class="btn" style="margin-top:16px">Iniciar sesión</button>
 <p class="sub" style="text-align:center;margin-top:14px">¿Aún no tienes cuenta? <button type="button" class="link" onclick="openRegister()">Regístrate</button></p></form>
 <div class="or">comercio</div>
-<button class="btn sec" onclick="go('mlogin')">🍽️ Soy un comercio</button></div>`}
+<button class="btn sec" onclick="go('mlogin')">${LOGO} Soy un comercio</button></div>`}
 function mloginH(){return`<div class="wrap"><button class="link" onclick="go('auth')">← Volver</button>
 <div class="hero"><div class="logo" style="font-size:27px">Cuponera<b>ff.</b></div><h2 style="margin-top:8px">Acceso comercios</h2></div>
 <form class="card" onsubmit="merchantLogin(event)"><label>Usuario</label><input class="field" id="mu" required autocomplete="username" placeholder="Usuario del comercio">
@@ -160,9 +160,32 @@ function openRegister(){sheet(`<h2>Crear cuenta</h2><p class="sub">Ingresa tus d
 <label>Celular</label><input class="field" id="rph" type="tel" inputmode="numeric" maxlength="10" required placeholder="09XXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'');chkPhone('rph','rphe')"><div class="err" id="rphe"></div>
 <label>Contraseña</label>${pw('rp1','Mínimo 8 caracteres','new-password','minlength="8" ',"chkPw('rp1','rp2','rp2e')")}
 <label>Confirmar contraseña</label>${pw('rp2','','new-password','minlength="8" ',"chkPw('rp1','rp2','rp2e')")}<div class="err" id="rp2e"></div>
-<label style="display:flex;gap:8px;font-weight:600"><input id="rc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Protección de Datos</button>.</span></label>
+<label style="display:flex;gap:8px;font-weight:600"><input id="rc" type="checkbox" required style="width:auto"><span>He leído y acepto la <button type="button" class="link" onclick="openPrivacy('u')">Política de Privacidad</button> y autorizo el tratamiento de mis datos personales.</span></label>
 <button class="btn" style="margin-top:14px">Continuar →</button></form>`)}
-function openPrivacy(){sheet(`<h2>Protección de datos</h2><p class="sub" style="margin:8px 0"><b>1. Responsable.</b> Cuponeraff tratará los datos personales proporcionados.</p><p class="sub" style="margin:8px 0"><b>2. Datos tratados.</b> Nombres, apellidos, fecha de nacimiento, correo electrónico y celular.</p><p class="sub" style="margin:8px 0"><b>3. Finalidades.</b> Crear y administrar cuentas; emitir y gestionar cupones.</p><p class="sub" style="margin:8px 0"><b>4. Derechos.</b> Puedes solicitar acceso, rectificación y eliminación de tus datos.</p>`)}
+const DATA_MAIL='sopoerte@cuponeraff.com'; // <-- CAMBIA por el correo real de Cuponeraff para temas de datos personales
+const LOGO='<svg width="17" height="17" viewBox="0 0 24 24" style="vertical-align:-3px" aria-hidden="true"><path d="M2.5 11 12 2.8 21.5 11V20a1.2 1.2 0 0 1-1.2 1.2H3.7A1.2 1.2 0 0 1 2.5 20z" fill="#f47721"/><path d="M8 9v3a1.5 1.5 0 0 0 3 0V9M9.5 9v9M15.5 18V9c1.7.9 2.2 3 1.3 5.2h-1.3" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PRIV={
+ u:['Política de Privacidad y Protección de Datos',[
+  ['Responsable',`Cuponeraff, con domicilio en Quito, Ecuador, es responsable del tratamiento de tus datos personales. Contacto: ${DATA_MAIL}.`],
+  ['Datos que tratamos',`Nombres y apellidos, fecha de nacimiento (para verificar que eres mayor de 18 años), correo electrónico, número de celular, contraseña, plan contratado y los cupones que solicitas y canjeas.`],
+  ['Finalidades',`Crear y administrar tu cuenta; emitir, validar y registrar el canje de cupones; gestionar tu plan y pagos; contactarte sobre el servicio y mantener la seguridad de la plataforma. No usaremos tus datos para publicidad sin tu consentimiento adicional.`],
+  ['Base legal',`Tu consentimiento libre, específico, informado e inequívoco, y la ejecución del servicio que solicitas, conforme a la Ley Orgánica de Protección de Datos Personales (LOPDP) y su Reglamento General.`],
+  ['Con quién compartimos',`Al canjear un cupón, el comercio emisor verá únicamente tu nombre y el código del cupón para validarlo. No vendemos tus datos. Usamos proveedores tecnológicos de alojamiento, que pueden almacenar información fuera de Ecuador con medidas de seguridad adecuadas y deber de confidencialidad.`],
+  ['Conservación',`Conservaremos tus datos mientras tu cuenta esté activa y por el tiempo exigido por la ley; luego serán eliminados o anonimizados.`],
+  ['Tus derechos',`Puedes ejercer tus derechos de información, acceso, rectificación y actualización, eliminación, oposición, portabilidad y suspensión del tratamiento, así como a no ser objeto de decisiones basadas únicamente en tratamientos automatizados, y retirar tu consentimiento en cualquier momento, escribiendo a ${DATA_MAIL}. Responderemos en un plazo de 15 días. Si no recibes respuesta satisfactoria, puedes presentar un reclamo ante la Superintendencia de Protección de Datos Personales.`],
+  ['Seguridad',`Aplicamos medidas técnicas y organizativas para proteger tu información y notificaremos a la autoridad y a los afectados las vulneraciones de seguridad, conforme a la ley. El servicio es solo para mayores de 18 años.`]]],
+ c:['Política de Privacidad para Comercios',[
+  ['Responsable',`Cuponeraff, con domicilio en Quito, Ecuador, es responsable del tratamiento de los datos que entregas al solicitar ser comercio socio. Contacto: ${DATA_MAIL}.`],
+  ['Datos que tratamos',`Nombre comercial, correo electrónico, celular, dirección, redes sociales y datos de la actividad del comercio (campañas, cupones validados y canjes).`],
+  ['Finalidades',`Evaluar tu solicitud y contactarte; registrar tu comercio como socio; publicar tu nombre, dirección, ubicación y promociones a los usuarios de la app; validar canjes y generar estadísticas de resultados.`],
+  ['Base legal',`Tu consentimiento libre, específico, informado e inequívoco y la ejecución de la relación comercial, conforme a la LOPDP y su Reglamento General.`],
+  ['Datos de los clientes',`Al validar un cupón accederás al nombre del cliente y al código del cupón. Solo puedes usarlos para validar y registrar ese canje. Está prohibido copiarlos, compartirlos o usarlos para publicidad u otros fines. Respecto de esos datos, el comercio asume las obligaciones de la LOPDP.`],
+  ['Declaraciones del comercio',`Declaras ser el representante del comercio o estar autorizado para registrarlo, que la información entregada es veraz y que cuentas con autorización de las personas cuyos datos entregues (por ejemplo, tus empleados).`],
+  ['Tus derechos',`Puedes ejercer tus derechos de acceso, rectificación y actualización, eliminación, oposición, portabilidad y suspensión del tratamiento, y retirar tu consentimiento, escribiendo a ${DATA_MAIL}. Responderemos en un plazo de 15 días. Si no recibes respuesta satisfactoria, puedes presentar un reclamo ante la Superintendencia de Protección de Datos Personales.`],
+  ['Conservación y seguridad',`Conservaremos los datos mientras dure la relación comercial y el tiempo exigido por la ley. Debes mantener la confidencialidad de tu usuario y contraseña y avisarnos ante cualquier uso no autorizado.`]]]};
+function openPrivacy(t){const[ttl,it]=PRIV[t||'u'];
+ $('#sheet2').innerHTML=`<div class="sh"><button class="x" onclick="closeLegal()" aria-label="Cerrar">×</button><h2 style="margin:6px 30px 2px 0">${ttl}</h2><p class="sub">Conforme a la Ley Orgánica de Protección de Datos Personales (LOPDP) del Ecuador y su Reglamento General.</p>${it.map((x,i)=>`<p style="margin-top:10px"><b>${i+1}. ${x[0]}.</b> <span class="sub">${x[1]}</span></p>`).join('')}<button class="btn" style="margin-top:16px" onclick="closeLegal()">Entendido</button></div>`;$('#sheet2').classList.add('show')}
+function closeLegal(){$('#sheet2').classList.remove('show')}
 function chkPw(a,b,e){const v=$('#'+b).value,m=!!v&&$('#'+a).value!==v,x=$('#'+e);x.textContent='Las contraseñas no coinciden.';x.style.display=m?'block':'none';return !m}
 function phoneErr(v){
  if(v.length&&!'09'.startsWith(v.slice(0,2)))return'El celular debe empezar con 09.';
@@ -198,7 +221,7 @@ function openMReq(){sheet(`<h2>Quiero ser comercio socio</h2><p class="sub">Revi
 <label>Celular</label><input class="field" id="bp" type="tel" inputmode="numeric" maxlength="10" required placeholder="09XXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'');chkPhone('bp','bpe')"><div class="err" id="bpe"></div>
 <label>Dirección</label><input class="field" id="ba" required maxlength="220" placeholder="Calle, sector y ciudad">
 <label>Instagram (opcional)</label><input class="field" id="bi"><label>TikTok (opcional)</label><input class="field" id="bt"><label>Facebook (opcional)</label><input class="field" id="bf">
-<label style="display:flex;gap:8px;font-weight:600"><input id="bc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Privacidad</button>.</span></label>
+<label style="display:flex;gap:8px;font-weight:600"><input id="bc" type="checkbox" required style="width:auto"><span>He leído y acepto la <button type="button" class="link" onclick="openPrivacy('c')">Política de Privacidad para Comercios</button> y autorizo el tratamiento de los datos del comercio.</span></label>
 <button class="btn" style="margin-top:14px">Enviar solicitud</button></form>`)}
 async function sendMReq(e){e.preventDefault();
  const email=$('#be').value.trim(),phone=$('#bp').value.trim();
@@ -221,12 +244,14 @@ function listH(){
 function homeH(){const ex=[...new Set(offers.filter(isActive).map(o=>catKey(o.category)).filter(k=>k&&!CAT[k]))];
  return`<input class="field" id="qs" placeholder="🔍 Buscar restaurante o promoción" value="${esc(q)}" oninput="q=this.value.toLowerCase();$('#ol').innerHTML=listH()" style="margin-bottom:10px">
  <div class="chips">${['all',...Object.keys(CAT),...ex].map(c=>`<button class="chip ${cat===c?'on':''}" onclick="cat='${esc(c)}';render()">${c==='all'?'Todos':catLbl(c)}</button>`).join('')}</div><div id="ol">${listH()}</div>`}
-function openOffer(id){const o=offers.find(x=>x.id===id);if(!o)return;
+let mer=[];
+const addrOf=o=>{const m=mer.find(x=>String(x.id)===String(o.merchantId))||mer.find(x=>(x.name||'').toLowerCase()===o.shop.toLowerCase());return(m&&m.address)||o.validAt||''};
+function openOffer(id){const o=offers.find(x=>x.id===id);if(!o)return;const addr=addrOf(o);
  sheet(`<div class="vis" style="border-radius:18px;overflow:hidden;margin-top:22px"><span class="badge">${esc(o.discount)}</span><img src="${esc(o.image)}" alt="${esc(o.shop)}" style="width:100%;height:150px;object-fit:cover;display:block"></div>
  <div class="row" style="margin-top:12px"><h2>${esc(o.shop)}</h2><span class="sub">${o.rating!==''?'★ '+esc(o.rating):''}</span></div>
- <p class="sub" style="margin:4px 0">${esc(o.description)}</p><p class="sub">${catLbl(catKey(o.category))} · 📍 ${esc(o.branch)}, Quito</p><p class="sub" style="margin-top:2px">Válido hasta ${esc(o.expires)}</p>
+ <p class="sub" style="margin:4px 0">${esc(o.description)}</p><p class="sub">${catLbl(catKey(o.category))} · 📍 ${esc(o.branch)}</p>${addr?`<p class="sub" style="margin-top:2px">📌 ${esc(addr)}</p>`:''}<p class="sub" style="margin-top:2px">Válido hasta ${esc(o.expires)}</p>
  ${termsH(o.terms.length?o.terms:TERMS,o.validAt||('Sucursal '+o.branch))}
- <button class="btn" onclick="claim('${esc(o.id)}')">Utilizar cupón</button>`)}
+ <button class="btn" onclick="claim('${esc(o.id)}')">Obtener cupón</button>`)}
 async function claim(id){
  const o=offers.find(x=>x.id===id);if(!o)return;
  const exp=new Date();exp.setMonth(exp.getMonth()+1);
@@ -338,15 +363,16 @@ function dayH(red){
  const lab=c=>(offers.find(o=>o.id===c.promotion_id)||{}).offer||c.offer||'Campaña';
  const names=[];myOffers().forEach(o=>{if(!names.includes(o.offer))names.push(o.offer)});red.forEach(c=>{const l=lab(c);if(!names.includes(l))names.push(l)});
  const key=t=>new Date(t).toLocaleDateString('en-CA',{timeZone:'America/Guayaquil'});
- const days=[];for(let i=29;i>=0;i--)days.push(key(Date.now()-i*864e5));
+ const first=red.length?red.map(c=>key(rdt(c))).sort()[0]:key(Date.now()),today=key(Date.now()),days=[];
+ for(let t=new Date(first+'T12:00:00Z'),n=0;n<3650;t=new Date(t.getTime()+864e5),n++){const k=t.toISOString().slice(0,10);if(k>today)break;days.push(k)}
  const data=Object.fromEntries(days.map(d=>[d,{}]));
  red.forEach(c=>{const d=key(rdt(c));if(data[d]){const l=lab(c);data[d][l]=(data[d][l]||0)+1}});
  const tot=d=>Object.values(data[d]).reduce((a,b)=>a+b,0),mx=Math.max(1,...days.map(tot));
- const head='<h3>Canjes por día</h3><p class="sub" style="margin-bottom:10px">Últimos 30 días. Cada color es una campaña.</p>';
- if(!days.some(d=>tot(d)>0))return`<div class="card">${head}<p class="sub">Aún no hay canjes confirmados en los últimos 30 días.</p></div>`;
+ const head='<h3>Canjes por día</h3><p class="sub" style="margin-bottom:10px">Historial completo, desde el primer canje hasta hoy. Cada color es una campaña.</p>';
+ if(!days.some(d=>tot(d)>0))return`<div class="card">${head}<p class="sub">Aún no hay canjes confirmados.</p></div>`;
  const legend=names.map((n,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:0 12px 6px 0;font-size:10.8px"><i style="width:10px;height:10px;border-radius:3px;background:${COLORS[i%8]}"></i>${esc(n)}</span>`).join('');
  const cols=days.map(d=>{const t=tot(d),segs=names.map((n,i)=>{const v=data[d][n]||0;return v?`<div title="${esc(n)}: ${v}" style="height:${v/mx*100}%;background:${COLORS[i%8]}"></div>`:''}).join('');
-  const mo=(d.slice(8)==='01'||d===days[0])?new Date(d+'T12:00:00').toLocaleDateString('es-EC',{month:'short'}):'';
+  const mo=(d.slice(8)==='01'||d===days[0])?new Date(d+'T12:00:00').toLocaleDateString('es-EC',{month:'short',year:(d.slice(5,7)==='01'||d===days[0])?'2-digit':undefined}):'';
   return`<div style="flex:0 0 24px;display:flex;flex-direction:column;align-items:center"><small style="font-size:10px;font-weight:800;height:14px">${t||''}</small><div style="height:130px;width:100%;display:flex;flex-direction:column-reverse;gap:1px;border-bottom:1px solid var(--ln)">${segs}</div><small style="font-size:10px;color:var(--mu);margin-top:3px">${d.slice(8)}</small><small style="font-size:10px;color:var(--o);font-weight:800;height:12px">${mo}</small></div>`}).join('');
  return`<div class="card">${head}<div>${legend}</div><div style="display:flex"><div style="display:flex;flex-direction:column;justify-content:space-between;height:130px;margin-top:14px;padding-right:6px;font-size:10px;color:var(--mu);text-align:right"><span>${mx}</span><span>0</span></div><div id="dsc" style="overflow-x:auto;flex:1"><div style="display:flex;gap:3px;min-width:max-content">${cols}</div></div></div></div>`}
 function execH(){return`<div id="ex">${execBody()}</div>`}
