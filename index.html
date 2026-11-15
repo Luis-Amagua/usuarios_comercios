@@ -12,51 +12,54 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-:root{--o:#f47721;--od:#df5e0c;--cr:#fff7ef;--ink:#252525;--mu:#777;--ln:#f0e5dc;--gr:#198754;--rd:#e64a38}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font:15px/1.4 Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--cr);padding-bottom:calc(78px + env(safe-area-inset-bottom))}
-button,input{font:inherit}button{cursor:pointer;border:0}h1,h2,h3,p{margin:0}
-.top{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--ln);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;justify-content:space-between;align-items:center}
-.logo{font-weight:900;font-size:22px;letter-spacing:-.5px}.logo b{color:var(--o)}
+:root{--o:#f47721;--o2:#ff9a4d;--od:#df5e0c;--cr:#fff7ef;--ink:#231f1c;--mu:#7b726b;--ln:#f1e6dc;--gr:#16a36a;--rd:#e5483a;--sh:0 8px 28px #7a3a1214}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{-webkit-text-size-adjust:100%}
+body{margin:0;font:13.5px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#ffead8 0,var(--cr) 260px) no-repeat,var(--cr);padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+button,input{font:inherit}button{cursor:pointer;border:0}h1,h2,h3,p{margin:0}h2{font-size:19px;letter-spacing:-.3px}h3{font-size:15px}
+.top{position:sticky;top:0;z-index:5;background:#fffffff0;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--ln);padding:calc(9px + env(safe-area-inset-top)) 16px 9px;display:flex;justify-content:space-between;align-items:center}
+.logo{background:none;border:0;padding:0;color:inherit;cursor:pointer;font-weight:900;font-size:20px;letter-spacing:-.6px}.logo b{color:var(--o)}
 .wrap{padding:16px;max-width:620px;margin:auto}.hide{display:none!important}
-.card{background:#fff;border:1px solid var(--ln);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 4px 18px #f4772110}
-.btn{background:var(--o);color:#fff;border-radius:14px;padding:13px 18px;font-weight:800;width:100%}.btn:active{background:var(--od)}
-.btn.sec{background:#fff;color:var(--o);border:2px solid var(--o)}.btn.red{background:#fff;color:var(--rd);border:2px solid var(--rd)}.btn.gr{background:var(--gr)}
-.btn.sm{width:auto;padding:9px 14px;font-size:13px;border-radius:12px}
-.field{width:100%;padding:13px 14px;border:1.5px solid var(--ln);border-radius:14px;background:#fff;outline:0}.field:focus{border-color:var(--o)}
-label{display:block;font-size:12px;font-weight:800;margin:12px 0 5px}.sub{color:var(--mu);font-size:13px}
-.err{color:var(--rd);font-size:13px;font-weight:700;margin-top:8px;display:none}
+.card{background:#fff;border:1px solid #f4eadf;border-radius:22px;padding:15px;margin-bottom:13px;box-shadow:var(--sh)}
+.btn{background:linear-gradient(135deg,var(--o2),var(--o) 55%,var(--od));color:#fff;border-radius:14px;padding:12px 16px;font-weight:800;width:100%;box-shadow:0 6px 16px #f4772138;transition:transform .1s}.btn:active{transform:scale(.98)}
+.btn.sec{background:#fff;color:var(--o);border:1.5px solid #f9c9a3;box-shadow:none}.btn.red{background:#fff;color:var(--rd);border:1.5px solid #f6c1ba;box-shadow:none}.btn.gr{background:linear-gradient(135deg,#2bc48a,var(--gr));box-shadow:0 6px 16px #16a36a33}
+.btn.sm{width:auto;padding:8px 13px;font-size:12px;border-radius:12px}
+.field{width:100%;padding:12px 13px;border:1.5px solid var(--ln);border-radius:14px;background:#fffdfb;outline:0;transition:.15s}.field:focus{border-color:var(--o);box-shadow:0 0 0 3px #f4772120}
+label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#4a413b}.sub{color:var(--mu);font-size:12px}
+.err{color:var(--rd);font-size:12px;font-weight:700;margin-top:6px;display:none}
 .link{background:none;color:var(--o);font-weight:800;padding:0}
-.hero{text-align:center;padding:26px 0 14px}.hero h1{font-size:30px;line-height:1.1;margin:8px 0}.hero em{color:var(--o);font-style:normal}
-.or{display:flex;align-items:center;gap:10px;color:var(--mu);font-size:12px;margin:20px 0}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--ln)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}.chip{background:#fff;border:1.5px solid var(--ln);border-radius:99px;padding:8px 14px;font-weight:700;font-size:13px;white-space:nowrap;color:var(--ink)}.chip.on{background:var(--o);border-color:var(--o);color:#fff}
-.offer{padding:0;overflow:hidden}.offer img{width:100%;height:150px;object-fit:cover;display:block;background:#ffe9d6}.vis{position:relative}
-.badge{position:absolute;top:12px;left:12px;background:var(--o);color:#fff;font-weight:900;padding:6px 12px;border-radius:99px;font-size:14px}
-.ob{padding:14px}.ob h3{font-size:17px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.terms{background:var(--cr);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:12px;color:#555}.terms ul{margin:4px 0 0;padding-left:16px}
-.pill{font-size:11px;font-weight:900;padding:4px 10px;border-radius:99px}.p-ok{background:#e3f6ec;color:var(--gr)}.p-used{background:#eee;color:#666}.p-exp{background:#fde7e4;color:var(--rd)}
-.seg{display:flex;background:#fff;border:1px solid var(--ln);border-radius:14px;padding:4px;margin-bottom:14px}.seg button{flex:1;background:none;padding:10px;border-radius:11px;font-weight:800;color:var(--mu)}.seg .on{background:var(--o);color:#fff}
-#tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;background:#fff;border-top:1px solid var(--ln);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
-#tabs button{flex:1;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--mu);padding:6px 0}#tabs span{font-size:22px;filter:grayscale(1);opacity:.6}
-#tabs .on{color:var(--o)}#tabs .on span{filter:none;opacity:1}
-#map{height:calc(100vh - 190px);min-height:340px;border-radius:20px;border:1px solid var(--ln)}
-.avatar{width:76px;height:76px;border-radius:50%;background:var(--o);color:#fff;font-size:32px;font-weight:900;display:grid;place-items:center;margin:8px auto 10px}
-.kv{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--ln);gap:12px}.kv:last-child{border:0}.kv span{color:var(--mu)}.kv b{text-align:right;word-break:break-all}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.metrics div{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:14px}.metrics span{font-size:12px;color:var(--mu);display:block}.metrics b{font-size:26px;color:var(--o)}
-.bar{height:9px;background:var(--ln);border-radius:9px;margin:5px 0 12px}.bar i{display:block;height:100%;background:var(--o);border-radius:9px}
-.res{border-radius:14px;padding:12px;margin-top:12px;font-size:14px}.res.ok{background:#e3f6ec}.res.no{background:#fde7e4}
-.log{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:13px}
-#sheet{position:fixed;inset:0;background:#0007;z-index:20;display:none;align-items:flex-end;justify-content:center}#sheet.show{display:flex}
-.sh{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));position:relative}
-.x{position:absolute;right:14px;top:12px;background:var(--cr);width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1}
+.hero{text-align:center;padding:24px 0 10px}
+.tag{font-size:11.5px;font-weight:700;color:var(--mu);white-space:nowrap;margin:2px 0 8px;letter-spacing:.3px}.tag b{color:var(--o)}.tag i{font-style:normal;opacity:.45}
+.or{display:flex;align-items:center;gap:10px;color:var(--mu);font-size:11px;margin:18px 0}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--ln)}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:3px 0 12px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{background:#fff;border:1.5px solid var(--ln);border-radius:99px;padding:7px 12px;font-weight:700;font-size:12px;white-space:nowrap;color:var(--ink)}
+.chip.on{background:linear-gradient(135deg,var(--o2),var(--o));border-color:transparent;color:#fff;box-shadow:0 4px 12px #f4772133}
+.offer{padding:0;overflow:hidden;cursor:pointer;transition:transform .12s}.offer:active{transform:scale(.985)}.offer img{width:100%;height:150px;object-fit:cover;display:block;background:#ffe9d6}
+.vis{position:relative}.vis:after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,#00000038);pointer-events:none}
+.badge{position:absolute;z-index:1;top:11px;left:11px;background:linear-gradient(135deg,var(--o2),var(--o));color:#fff;font-weight:900;padding:5px 11px;border-radius:99px;font-size:12.5px;box-shadow:0 4px 12px #0003}
+.ob{padding:13px 14px}.more{color:var(--o);font-size:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.terms{background:var(--cr);border-radius:12px;padding:9px 11px;margin:10px 0;font-size:11px;color:#5a504a}.terms ul{margin:4px 0 0;padding-left:16px}
+.pill{font-size:10px;font-weight:900;padding:3px 9px;border-radius:99px;letter-spacing:.2px}.p-ok{background:#e1f6ec;color:var(--gr)}.p-used{background:#eee;color:#666}.p-exp{background:#fde7e4;color:var(--rd)}
+.seg{display:flex;background:#fff;border:1px solid var(--ln);border-radius:15px;padding:4px;margin-bottom:13px}.seg button{flex:1;background:none;padding:9px;border-radius:12px;font-weight:800;color:var(--mu)}.seg .on{background:linear-gradient(135deg,var(--o2),var(--o));color:#fff;box-shadow:0 4px 12px #f4772133}
+#tabs{position:fixed;left:12px;right:12px;max-width:600px;margin:auto;bottom:calc(10px + env(safe-area-inset-bottom));z-index:6;background:#ffffffee;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--ln);border-radius:24px;display:flex;padding:5px;box-shadow:0 10px 30px #7a3a1226}
+#tabs button{flex:1;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;font-weight:700;color:var(--mu);padding:7px 0;border-radius:18px;transition:.15s}#tabs span{font-size:19px;filter:grayscale(1);opacity:.55}
+#tabs .on{color:var(--o);background:#fff1e6}#tabs .on span{filter:none;opacity:1}
+#map{height:calc(100vh - 200px);min-height:340px;border-radius:22px;border:1px solid var(--ln);box-shadow:var(--sh)}
+.avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--o2),var(--od));color:#fff;font-size:28px;font-weight:900;display:grid;place-items:center;margin:6px auto 10px;box-shadow:0 8px 20px #f4772140}
+.kv{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--ln);gap:12px}.kv:last-child{border:0}.kv span{color:var(--mu)}.kv b{text-align:right;word-break:break-all}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px}.metrics div{background:#fff;border:1px solid #f4eadf;border-radius:18px;padding:13px;box-shadow:var(--sh)}.metrics span{font-size:11px;color:var(--mu);display:block}.metrics b{font-size:23px;color:var(--o)}
+.bar{height:8px;background:var(--ln);border-radius:9px;margin:5px 0 11px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--o2),var(--o));border-radius:9px}
+.res{border-radius:14px;padding:11px;margin-top:12px;font-size:12.5px}.res.ok{background:#e1f6ec}.res.no{background:#fde7e4}
+.log{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:12px}
+#sheet{position:fixed;inset:0;background:#1d120a80;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);z-index:20;display:none;align-items:flex-end;justify-content:center}#sheet.show{display:flex}
+.sh{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:28px 28px 0 0;padding:18px 17px calc(20px + env(safe-area-inset-bottom));position:relative}
+.sh:before{content:"";display:block;width:38px;height:4px;border-radius:4px;background:#e8dcd2;margin:-6px auto 10px}
+.x{position:absolute;right:13px;top:13px;background:var(--cr);width:32px;height:32px;border-radius:50%;font-size:18px;line-height:1;z-index:2}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plans{display:grid;gap:8px;margin:12px 0}
-.plan{border:2px solid var(--ln);border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}.plan.on{border-color:var(--o);background:var(--cr)}.plan b{font-size:18px;color:var(--o)}
-.qr{display:grid;place-items:center;margin:14px 0}.code{font-size:30px;font-weight:900;letter-spacing:5px;text-align:center;color:var(--o)}
-#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#24211f;color:#fff;padding:11px 16px;border-radius:12px;z-index:50;font-size:13px;display:none;max-width:90vw;text-align:center}
-.empty{text-align:center;color:var(--mu);padding:30px 10px}
-.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;font-size:20px;padding:8px;line-height:1}
-.logo{background:none;border:0;padding:0;color:inherit;cursor:pointer}
-.tag{font-size:13px;font-weight:700;color:var(--mu);white-space:nowrap;margin:2px 0 8px;letter-spacing:.3px}.tag b{color:var(--o)}
+.plan{border:2px solid var(--ln);border-radius:16px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center}.plan.on{border-color:var(--o);background:var(--cr)}.plan b{font-size:16px;color:var(--o)}
+.qr{display:grid;place-items:center;margin:13px 0}.code{font-size:27px;font-weight:900;letter-spacing:5px;text-align:center;color:var(--o)}
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#24211f;color:#fff;padding:10px 15px;border-radius:13px;z-index:50;font-size:12px;display:none;max-width:90vw;text-align:center}
+.empty{text-align:center;color:var(--mu);padding:28px 10px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;font-size:18px;padding:8px;line-height:1}
 </style></head>
 <body>
 <div id="app"></div><nav id="tabs"></nav><div id="sheet" onclick="if(event.target===this)closeSheet()"></div><div id="toast"></div>
@@ -76,7 +79,7 @@ function toast(t){const x=$('#toast');x.textContent=t;x.style.display='block';cl
 const fdate=d=>d?new Date(d).toLocaleString('es-EC',{timeZone:'America/Guayaquil',dateStyle:'medium',timeStyle:'short'}):'';
 const fday=d=>d?new Date(d).toLocaleDateString('es-EC'):'';
 const okMail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-const pw=(id,ph='',ac='current-password',min='')=>`<div style="position:relative"><input class="field" id="${id}" type="password" required autocomplete="${ac}" placeholder="${ph}" ${min}style="padding-right:48px"><button type="button" class="eye" onclick="eye('${id}',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div>`;
+const pw=(id,ph='',ac='current-password',min='',ev='')=>`<div style="position:relative"><input class="field" id="${id}" type="password" required autocomplete="${ac}" placeholder="${ph}" ${min}${ev?`oninput="${ev}" `:''}style="padding-right:48px"><button type="button" class="eye" onclick="eye('${id}',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div>`;
 function eye(id,b){const i=$('#'+id),v=i.type==='password';i.type=v?'text':'password';b.textContent=v?'🙈':'👁️'}
 const PLAN={free:'Plan Free · 10 cupones',monthly:'Plan Mensual · $2.99',annual:'Plan Anual · $19.99'};
 const RES={READ_VALID:'Lectura válida',REDEEMED:'Canje confirmado',NOT_FOUND:'No reconocido',WRONG_MERCHANT:'Otro comercio',ALREADY_REDEEMED:'Ya utilizado',EXPIRED:'Vencido',INACTIVE:'Inactivo'};
@@ -108,7 +111,7 @@ function render(){
  t.style.display='flex';
  t.innerHTML=items.map(i=>`<button class="${view===i[0]?'on':''}" onclick="go('${i[0]}')"><span>${i[1]}</span>${i[2]}</button>`).join('');
  const V={home:homeH,map:mapH,coupons:couponsH,profile:profileH,validate:validateH,exec:execH,promos:promosH}[view];
- a.innerHTML=`<div class="top"><button class="logo" onclick="go(me.role==='client'?'home':'validate')" aria-label="Ir a Inicio">Cuponera<b>ff.</b></button><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):'🏪 '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
+ a.innerHTML=`<div class="top"><button class="logo" onclick="go(me.role==='client'?'home':'validate')" aria-label="Ir a Inicio">Cuponera<b>ff.</b></button><span class="sub">${cl?'Hola, '+esc(me.name.split(' ')[0]):'🍽️ '+esc(me.name)}</span></div><div class="wrap">${V()}</div>`;
  if(view==='map')initMap();if(view==='coupons')loadCoupons().then(()=>{if(view==='coupons')$('#cl').innerHTML=couponListH()});
  if(view==='validate'||view==='exec')loadMerchant();
 }
@@ -116,7 +119,7 @@ function setMe(u){me=u;localStorage.setItem('cf_me',JSON.stringify(u));view=u.ro
 function logout(){stopScan();me=null;coupons=[];localStorage.removeItem('cf_me');view='auth';render();toast('Sesión cerrada')}
 
 // ====== Acceso ======
-function authH(){return`<div class="wrap"><div class="hero"><div class="logo" style="font-size:34px">Cuponera<b>ff.</b></div><p class="tag">Descubre <b>·</b> Ahorra <b>·</b> Disfruta</p><p class="sub">Cupones en tus restaurantes favoritos de Quito.</p></div>
+function authH(){return`<div class="wrap"><div class="hero"><div class="logo" style="font-size:30.6px">Cuponera<b>ff.</b></div><p class="tag">Descubre <i>·</i> <b>Ahorra</b> <i>·</i> Disfruta</p><p class="sub">Cupones en tus restaurantes favoritos de Quito.</p></div>
 <form class="card" onsubmit="clientLogin(event)"><h3>Inicia sesión</h3>
 <label>Correo electrónico</label><input class="field" id="le" type="email" required autocomplete="username">
 <label>Contraseña</label>${pw('lp')}
@@ -124,9 +127,9 @@ function authH(){return`<div class="wrap"><div class="hero"><div class="logo" st
 <button class="btn" style="margin-top:16px">Iniciar sesión</button>
 <p class="sub" style="text-align:center;margin-top:14px">¿Aún no tienes cuenta? <button type="button" class="link" onclick="openRegister()">Regístrate</button></p></form>
 <div class="or">comercio</div>
-<button class="btn sec" onclick="go('mlogin')">🏪 Soy un comercio</button></div>`}
+<button class="btn sec" onclick="go('mlogin')">🍽️ Soy un comercio</button></div>`}
 function mloginH(){return`<div class="wrap"><button class="link" onclick="go('auth')">← Volver</button>
-<div class="hero"><div class="logo" style="font-size:30px">Cuponera<b>ff.</b></div><h2 style="margin-top:8px">Acceso comercios</h2></div>
+<div class="hero"><div class="logo" style="font-size:27px">Cuponera<b>ff.</b></div><h2 style="margin-top:8px">Acceso comercios</h2></div>
 <form class="card" onsubmit="merchantLogin(event)"><label>Usuario</label><input class="field" id="mu" required autocomplete="username" placeholder="Usuario del comercio">
 <label>Contraseña</label>${pw('mp')}
 <div class="err" id="merr">Usuario o contraseña incorrectos.</div>
@@ -155,11 +158,12 @@ function openRegister(){sheet(`<h2>Crear cuenta</h2><p class="sub">Ingresa tus d
 <div class="err" id="rbe"></div>
 <label>Correo electrónico</label><input class="field" id="rm" type="email" required maxlength="120">
 <label>Celular</label><input class="field" id="rph" type="tel" inputmode="numeric" maxlength="10" required placeholder="09XXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'');chkPhone('rph','rphe')"><div class="err" id="rphe"></div>
-<label>Contraseña</label>${pw('rp1','Mínimo 8 caracteres','new-password','minlength="8" ')}
-<label>Confirmar contraseña</label>${pw('rp2','','new-password','minlength="8" ')}
+<label>Contraseña</label>${pw('rp1','Mínimo 8 caracteres','new-password','minlength="8" ',"chkPw('rp1','rp2','rp2e')")}
+<label>Confirmar contraseña</label>${pw('rp2','','new-password','minlength="8" ',"chkPw('rp1','rp2','rp2e')")}<div class="err" id="rp2e"></div>
 <label style="display:flex;gap:8px;font-weight:600"><input id="rc" type="checkbox" required style="width:auto"><span>Acepto la <button type="button" class="link" onclick="openPrivacy()">Política de Protección de Datos</button>.</span></label>
 <button class="btn" style="margin-top:14px">Continuar →</button></form>`)}
 function openPrivacy(){sheet(`<h2>Protección de datos</h2><p class="sub" style="margin:8px 0"><b>1. Responsable.</b> Cuponeraff tratará los datos personales proporcionados.</p><p class="sub" style="margin:8px 0"><b>2. Datos tratados.</b> Nombres, apellidos, fecha de nacimiento, correo electrónico y celular.</p><p class="sub" style="margin:8px 0"><b>3. Finalidades.</b> Crear y administrar cuentas; emitir y gestionar cupones.</p><p class="sub" style="margin:8px 0"><b>4. Derechos.</b> Puedes solicitar acceso, rectificación y eliminación de tus datos.</p>`)}
+function chkPw(a,b,e){const v=$('#'+b).value,m=!!v&&$('#'+a).value!==v,x=$('#'+e);x.textContent='Las contraseñas no coinciden.';x.style.display=m?'block':'none';return !m}
 function phoneErr(v){
  if(v.length&&!'09'.startsWith(v.slice(0,2)))return'El celular debe empezar con 09.';
  if(v.length!==10)return'El celular debe tener exactamente 10 dígitos.';
@@ -179,7 +183,7 @@ function regStep1(e){e.preventDefault();
  pu={email,first:$('#rf').value.trim(),last:$('#rl').value.trim(),birth:$('#rb').value,phone,password:$('#rp1').value,plan:'free',status:'activo',created_at:new Date().toISOString()};
  plan='free';planSheet()}
 function planSheet(){const P=[['free','Plan Free','$0','10 cupones disponibles'],['monthly','Plan Mensual','$2.99','Cupones ilimitados'],['annual','Plan Anual','$19.99','Duración de 1 año']];
- sheet(`<h2>Elige tu plan</h2><p class="sub">Último paso para activar tu cuenta.</p><div class="plans">${P.map(p=>`<div class="plan ${plan===p[0]?'on':''}" onclick="plan='${p[0]}';planSheet()"><div><b style="color:var(--ink);font-size:15px">${p[1]}</b><div class="sub">${p[3]}</div></div><b>${p[2]}</b></div>`).join('')}</div>
+ sheet(`<h2>Elige tu plan</h2><p class="sub">Último paso para activar tu cuenta.</p><div class="plans">${P.map(p=>`<div class="plan ${plan===p[0]?'on':''}" onclick="plan='${p[0]}';planSheet()"><div><b style="color:var(--ink);font-size:13.5px">${p[1]}</b><div class="sub">${p[3]}</div></div><b>${p[2]}</b></div>`).join('')}</div>
 ${plan!=='free'?`<div class="card" style="background:var(--cr)"><b>Pago por transferencia</b><p class="sub" style="margin:4px 0 8px">Banco Pichincha · Cta. Corriente No. 2100849201 · Cuponeraff S.A.</p><label style="margin-top:0">Últimos dígitos del comprobante</label><input class="field" id="cd" inputmode="numeric" maxlength="12" required></div>`:''}
 <button class="btn" onclick="regFinish()">${plan==='free'?'Crear mi cuenta':'Validar el pago'}</button>`)}
 async function regFinish(){
@@ -201,25 +205,34 @@ async function sendMReq(e){e.preventDefault();
  if(!okMail(email))return toast('Ingresa un correo válido.');if(!chkPhone('bp','bpe',true))return toast($('#bpe').textContent);
  const r={id:uid(),name:$('#bn').value.trim(),email,phone,address:$('#ba').value.trim(),instagram:$('#bi').value.trim(),tiktok:$('#bt').value.trim(),facebook:$('#bf').value.trim(),status:'PENDIENTE',created_at:new Date().toISOString()};
  if(sb){try{await sb.from('merchant_requests').insert([r])}catch(x){}}
- sheet('<div class="empty"><div style="font-size:42px">🎉</div><h2>¡Gracias por tu interés!</h2><p class="sub" style="margin:8px 0 16px">Revisaremos tu solicitud y nos pondremos en contacto contigo.</p><button class="btn" onclick="closeSheet()">Listo</button></div>')}
+ sheet('<div class="empty"><div style="font-size:32px">🎉</div><h2>¡Gracias por tu interés!</h2><p class="sub" style="margin:8px 0 16px">Revisaremos tu solicitud y nos pondremos en contacto contigo.</p><button class="btn" onclick="closeSheet()">Listo</button></div>')}
 
 // ====== Cliente: Inicio ======
+const CAT={burger:['🍔','Hamburguesas'],pizza:['🍕','Pizza'],cafe:['☕','Cafeterías'],dessert:['🍰','Postres']};
+const catKey=v=>{const t=(v||'').toLowerCase();return /pizza/.test(t)?'pizza':/burger|hambur/.test(t)?'burger':/caf[eé]/.test(t)?'cafe':/postre|dessert/.test(t)?'dessert':t};
+const catLbl=k=>CAT[k]?CAT[k][0]+' '+CAT[k][1]:'🍽️ '+(k?k[0].toUpperCase()+k.slice(1):'Otros');
 function listH(){
- const l=offers.filter(isActive).filter(o=>(cat==='all'||o.category===cat)&&(!q||(o.shop+o.description+o.offer+o.category).toLowerCase().includes(q)));
+ const l=offers.filter(isActive).filter(o=>(cat==='all'||catKey(o.category)===cat)&&(!q||(o.shop+o.description+o.offer+catLbl(catKey(o.category))).toLowerCase().includes(q)));
  if(!l.length)return`<div class="empty">${loaded?'No hay promociones disponibles.':'Cargando promociones...'}</div>`;
- return l.map(o=>`<article class="card offer"><div class="vis"><span class="badge">${esc(o.discount)}</span><img loading="lazy" src="${esc(o.image)}" alt="${esc(o.shop)}"></div><div class="ob">
+ return l.map(o=>`<article class="card offer" onclick="openOffer('${esc(o.id)}')"><div class="vis"><span class="badge">${esc(o.discount)}</span><img loading="lazy" src="${esc(o.image)}" alt="${esc(o.shop)}"></div><div class="ob">
  <div class="row"><h3>${esc(o.shop)}</h3><span class="sub">${o.rating!==''?'★ '+esc(o.rating):''}</span></div>
- <p class="sub" style="margin:4px 0">${esc(o.description)}</p><p class="sub">📍 ${esc(o.branch)}, Quito</p>
- <div class="row" style="margin-top:12px"><small class="sub">Hasta ${esc(o.expires)}</small><button class="btn sm" onclick="claim('${esc(o.id)}')">Obtener cupón</button></div></div></article>`).join('')}
-function homeH(){const cats=[...new Set(offers.filter(isActive).map(o=>o.category).filter(Boolean))];
+ <p class="sub" style="margin:3px 0">${esc(o.description)}</p>
+ <div class="row" style="margin-top:8px"><span class="sub">${catLbl(catKey(o.category))} · 📍 ${esc(o.branch)}</span><b class="more">Ver ›</b></div></div></article>`).join('')}
+function homeH(){const ex=[...new Set(offers.filter(isActive).map(o=>catKey(o.category)).filter(k=>k&&!CAT[k]))];
  return`<input class="field" id="qs" placeholder="🔍 Buscar restaurante o promoción" value="${esc(q)}" oninput="q=this.value.toLowerCase();$('#ol').innerHTML=listH()" style="margin-bottom:10px">
- <div class="chips">${['all',...cats].map(c=>`<button class="chip ${cat===c?'on':''}" onclick="cat='${esc(c)}';render()">${c==='all'?'Todos':esc(c)}</button>`).join('')}</div><div id="ol">${listH()}</div>`}
+ <div class="chips">${['all',...Object.keys(CAT),...ex].map(c=>`<button class="chip ${cat===c?'on':''}" onclick="cat='${esc(c)}';render()">${c==='all'?'Todos':catLbl(c)}</button>`).join('')}</div><div id="ol">${listH()}</div>`}
+function openOffer(id){const o=offers.find(x=>x.id===id);if(!o)return;
+ sheet(`<div class="vis" style="border-radius:18px;overflow:hidden;margin-top:22px"><span class="badge">${esc(o.discount)}</span><img src="${esc(o.image)}" alt="${esc(o.shop)}" style="width:100%;height:150px;object-fit:cover;display:block"></div>
+ <div class="row" style="margin-top:12px"><h2>${esc(o.shop)}</h2><span class="sub">${o.rating!==''?'★ '+esc(o.rating):''}</span></div>
+ <p class="sub" style="margin:4px 0">${esc(o.description)}</p><p class="sub">${catLbl(catKey(o.category))} · 📍 ${esc(o.branch)}, Quito</p><p class="sub" style="margin-top:2px">Válido hasta ${esc(o.expires)}</p>
+ ${termsH(o.terms.length?o.terms:TERMS,o.validAt||('Sucursal '+o.branch))}
+ <button class="btn" onclick="claim('${esc(o.id)}')">Utilizar cupón</button>`)}
 async function claim(id){
  const o=offers.find(x=>x.id===id);if(!o)return;
  const exp=new Date();exp.setMonth(exp.getMonth()+1);
  const c={id:uid(),token:uid(),short_code:shortCode(),promotion_id:id,merchant_id:o.merchantId,merchant:o.shop,branch:o.branch,offer:o.offer,discount:o.discount,client:me.user,created_at:new Date().toISOString(),expires_at:exp.toISOString(),status:'ACTIVE'};
  if(sb){try{await sb.from('coupons').insert([c])}catch(e){}}
- coupons.push(c);cseg='act';go('coupons');toast('¡Cupón guardado!')}
+ coupons.push(c);cseg='act';closeSheet();go('coupons');toast('¡Cupón guardado!')}
 
 // ====== Cliente: Mapa ======
 function mapH(){return`<div id="map"></div>`}
@@ -228,7 +241,7 @@ async function initMap(){
  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
  setTimeout(()=>map.invalidateSize(),100);
  if(!sb)return;
- try{const{data}=await sb.from('merchants').select('*');(data||[]).forEach(m=>{if(m.lat&&m.lng)L.marker([m.lat,m.lng]).addTo(map).bindPopup(`<b>${esc(m.name)}</b><br>${esc(m.category||'Aliado')}<br><small>${esc(m.address||m.branch||'Quito')}</small><br><a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">Cómo llegar</a>`)})}catch(e){}}
+ try{const{data}=await sb.from('merchants').select('*');const pts=[];(data||[]).forEach(m=>{if(m.lat&&m.lng){pts.push([+m.lat,+m.lng]);L.marker([m.lat,m.lng]).addTo(map).bindPopup(`<b>${esc(m.name)}</b><br>${esc(m.category||'Aliado')}<br><small>${esc(m.address||m.branch||'Quito')}</small><br><a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">Cómo llegar</a>`)}});if(pts.length===1)map.setView(pts[0],15);else if(pts.length)map.fitBounds(L.latLngBounds(pts).pad(.25),{maxZoom:15})}catch(e){}}
 
 // ====== Cliente: Mis cupones ======
 function cardH(c){const s=eff(c),on=s==='ACTIVE',t=termsOf(c);
@@ -241,7 +254,8 @@ function couponListH(){const by=(a,b)=>new Date(b.created_at)-new Date(a.created
 function couponsH(){const n=coupons.filter(c=>eff(c)==='ACTIVE').length,h=coupons.length-n;
  return`<div class="seg"><button class="${cseg==='act'?'on':''}" onclick="cseg='act';render()">Disponibles${n?' ('+n+')':''}</button><button class="${cseg==='hist'?'on':''}" onclick="cseg='hist';render()">Usados${h?' ('+h+')':''}</button></div><div id="cl">${couponListH()}</div>`}
 function showCoupon(id){const c=coupons.find(x=>x.id===id);if(!c)return;
- sheet(`<h2>${esc(c.merchant)}</h2><p class="sub">${esc(c.offer)}</p><div class="qr" id="qrb"></div><div class="code">${esc(c.short_code)}</div><p class="sub" style="text-align:center;margin:6px 0">Muestra el QR o dicta el código al pagar · un solo uso<br>Válido hasta el ${fday(c.expires_at)}</p>`);
+ sheet(`<div style="text-align:center;padding-top:6px"><h2>${esc(c.merchant)}</h2><p class="sub" style="margin-top:2px">${esc(c.offer)}</p><div class="qr" id="qrb"></div><div class="code">${esc(c.short_code)}</div>
+ <p class="sub" style="margin:10px 0 4px">Muestra el QR o el código en el comercio</p><p style="font-weight:800;color:var(--o)">Cupón válido por un solo uso</p><p class="sub" style="margin-top:4px">Válido hasta el ${fday(c.expires_at)}</p></div>`);
  new QRCode($('#qrb'),{text:'CUPONERAFF|'+c.token,width:180,height:180,colorDark:'#252525',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}
 
 // ====== Perfil (cliente y comercio) ======
@@ -255,7 +269,7 @@ function profileH(){const cl=me.role==='client';
 let cpCur='';
 function openCpw(){cpCur='';$('#cpw').innerHTML=`<h3>Cambiar contraseña</h3>
  <form onsubmit="cpVerify(event)"><label>Contraseña actual</label>${pw('cp0')}<div class="err" id="cpe">La contraseña actual es incorrecta.</div><button class="btn" style="margin-top:12px" id="cpb">Verificar</button></form>
- <form id="cpn" class="hide" onsubmit="cpSave(event)"><label>Nueva contraseña</label>${pw('cp1','Mínimo 8 caracteres','new-password','minlength="8" ')}<label>Confirmar nueva contraseña</label>${pw('cp2','','new-password','minlength="8" ')}<div class="err" id="cpe2"></div><button class="btn" style="margin-top:12px">Guardar contraseña</button></form>
+ <form id="cpn" class="hide" onsubmit="cpSave(event)"><label>Nueva contraseña</label>${pw('cp1','Mínimo 8 caracteres','new-password','minlength="8" ',"chkPw('cp1','cp2','cpm')")}<label>Confirmar nueva contraseña</label>${pw('cp2','','new-password','minlength="8" ',"chkPw('cp1','cp2','cpm')")}<div class="err" id="cpm"></div><div class="err" id="cpe2"></div><button class="btn" style="margin-top:12px">Guardar contraseña</button></form>
  <button type="button" class="link" style="margin-top:12px" onclick="render()">Cancelar</button>`}
 async function cpVerify(e){e.preventDefault();const cur=$('#cp0').value,cl=me.role==='client';let ok=false;
  if(sb){try{const t=cl?sb.from('users').select('email').eq('email',me.user):sb.from('merchants').select('id').eq('id',me.merchantId);const{data}=await t.eq('password',cur).limit(1);ok=!!(data&&data.length)}catch(x){}}
@@ -296,8 +310,9 @@ async function validate(v){
  else if(c.status!=='ACTIVE')r=['INACTIVE','Cupón no disponible','Estado actual: '+esc(c.status)+'.'];
  else if(c.expires_at&&Date.now()>new Date(c.expires_at).getTime())r=['EXPIRED','Cupón vencido','La vigencia de este cupón terminó.'];
  if(r){await logEv(code,r[0],r[1],c);sres(false,r[1],r[2]);loadMerchant();return}
+ let nm='Cliente';if(sb){try{const{data}=await sb.from('users').select('first,last').eq('email',String(c.client||'').toLowerCase()).limit(1);if(data&&data.length)nm=((data[0].first||'')+' '+(data[0].last||'')).trim()||nm}catch(e){}}
  await logEv(code,'READ_VALID','Lectura válida; pendiente de confirmación',c);
- sres(true,'Cupón válido',`<b>${esc(c.offer)}</b><br>Cliente: ${esc(c.client)}<br>Código: <b>${esc(c.short_code)}</b><br><button class="btn gr" style="margin-top:10px" onclick="redeem('${c.id}')">Confirmar canje</button><button class="btn sec sm" style="margin-top:8px" onclick="$('#sr').innerHTML=''">Cancelar</button>`);loadMerchant()}
+ sres(true,'Cupón válido',`<b>${esc(c.offer)}</b><br>Cliente: ${esc(nm)}<br>Código: <b>${esc(c.short_code)}</b><br><button class="btn gr" style="margin-top:10px" onclick="redeem('${c.id}')">Confirmar canje</button><button class="btn sec sm" style="margin-top:8px" onclick="$('#sr').innerHTML=''">Cancelar</button>`);loadMerchant()}
 async function redeem(id){
  let c=mine.find(x=>x.id===id)||coupons.find(x=>x.id===id);
  if(sb){try{const{data}=await sb.from('coupons').select('*').eq('id',id).limit(1);if(data&&data.length)c=data[0]}catch(e){}}
@@ -329,7 +344,7 @@ function dayH(red){
  const tot=d=>Object.values(data[d]).reduce((a,b)=>a+b,0),mx=Math.max(1,...days.map(tot));
  const head='<h3>Canjes por día</h3><p class="sub" style="margin-bottom:10px">Últimos 30 días. Cada color es una campaña.</p>';
  if(!days.some(d=>tot(d)>0))return`<div class="card">${head}<p class="sub">Aún no hay canjes confirmados en los últimos 30 días.</p></div>`;
- const legend=names.map((n,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:0 12px 6px 0;font-size:12px"><i style="width:10px;height:10px;border-radius:3px;background:${COLORS[i%8]}"></i>${esc(n)}</span>`).join('');
+ const legend=names.map((n,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:0 12px 6px 0;font-size:10.8px"><i style="width:10px;height:10px;border-radius:3px;background:${COLORS[i%8]}"></i>${esc(n)}</span>`).join('');
  const cols=days.map(d=>{const t=tot(d),segs=names.map((n,i)=>{const v=data[d][n]||0;return v?`<div title="${esc(n)}: ${v}" style="height:${v/mx*100}%;background:${COLORS[i%8]}"></div>`:''}).join('');
   const mo=(d.slice(8)==='01'||d===days[0])?new Date(d+'T12:00:00').toLocaleDateString('es-EC',{month:'short'}):'';
   return`<div style="flex:0 0 24px;display:flex;flex-direction:column;align-items:center"><small style="font-size:10px;font-weight:800;height:14px">${t||''}</small><div style="height:130px;width:100%;display:flex;flex-direction:column-reverse;gap:1px;border-bottom:1px solid var(--ln)">${segs}</div><small style="font-size:10px;color:var(--mu);margin-top:3px">${d.slice(8)}</small><small style="font-size:10px;color:var(--o);font-weight:800;height:12px">${mo}</small></div>`}).join('');
